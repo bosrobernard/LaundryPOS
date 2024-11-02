@@ -57,7 +57,7 @@
 
     <div class="user-menu">
       <button class="user-btn" [matMenuTriggerFor]="profileMenu">
-        <img [src]="currentUser.avatar || 'assets/profile.jpg'"  
+        <img [src]="currentUser.avatar || '/assets/profile.jpg'"  
              [alt]="currentUser.name"
              class="user-avatar">
         <div class="user-info" *ngIf="!collapsed">

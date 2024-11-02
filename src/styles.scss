@@ -24,6 +24,20 @@ body {
   background-color: #f5f5f5;
 }
 
+h4.custom-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: grey;
+  display: block; /* Ensures the label takes up full width */
+  margin-bottom: 4px; /* Spacing below each label for separation */
+}
+
+.mat-form-field {
+  width: 100%; /* Makes sure the input fields are full-width */
+  margin-bottom: 16px; /* Consistent spacing between form fields */
+}
+
+
 .main-container {
   display: flex;
   height: 100vh;

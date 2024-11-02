@@ -16,7 +16,7 @@ export class HeaderComponent {
     name: 'John Doe',
     email: 'john@example.com',
     role: 'Administrator',
-    avatar: '../../assets/profile.jpg'
+    avatar: '/assets/profile.jpg'
   };
 
   notifications = [
