@@ -8,6 +8,11 @@ const routes: Routes = [
     component: ProfileViewComponent,
     // canActivate: [AuthGuard]
   },
+  {
+    path: '/profile',
+    component: ProfileViewComponent,
+    // canActivate: [AuthGuard]
+  },
   // {
   //   path: 'edit',
   //   component: EditProfileComponent,

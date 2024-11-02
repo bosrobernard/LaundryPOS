@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,12 +10,13 @@ export class SidebarComponent {
   @Input() collapsed = false;
   userAvatar = 'assets/profile.jpg';
 
+  constructor(private router: Router) {}
+  
   onCollapse() {
     // Emit event to parent
   }
 
   logout() {
-    // Implement logout
-  }
+    this.router.navigate(['/auth/login']);  }
 
 }

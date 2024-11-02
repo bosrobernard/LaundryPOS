@@ -1,0 +1,92 @@
+<div class="dialog-container">
+    <!-- Dialog Header -->
+    <div class="dialog-header">
+      <h2 mat-dialog-title>
+        <i class="ri-shopping-basket-line"></i>
+        Order Items
+      </h2>
+      <button mat-icon-button (click)="close()">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+
+    <!-- Order Info -->
+    <div class="order-info">
+      <div class="info-row">
+        <span class="label">Order ID:</span>
+        <span class="value">#{{order.id}}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Customer:</span>
+        <span class="value">{{order.customerName}}</span>
+      </div>
+      <div class="info-row" *ngIf="order.customerEmail">
+        <span class="label">Email:</span>
+        <span class="value">{{order.customerEmail}}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Date:</span>
+        <span class="value">{{order.createdAt | date:'medium'}}</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Items List -->
+    <mat-dialog-content>
+      <div class="items-list">
+        <div class="item" *ngFor="let item of order.items; let i = index">
+          <div class="item-header">
+            <div class="item-info">
+              <span class="item-number">#{{i + 1}}</span>
+              <div class="service-info">
+                <i [class]="getServiceIcon(item.service)"></i>
+                <span class="service-name">{{getServiceName(item.service)}}</span>
+              </div>
+            </div>
+            <div class="item-price">
+              <div class="quantity">
+                <small>Qty: {{item.quantity}}</small>
+                <small>x</small>
+                <small>${{item.price | number:'1.2-2'}}</small>
+              </div>
+              <span class="total">${{item.total | number:'1.2-2'}}</span>
+            </div>
+          </div>
+
+          <div class="item-notes" *ngIf="hasNotes(item)">
+            <i class="ri-file-list-line"></i>
+            <p>{{item.notes}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="order-summary">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>${{getSubtotal() | number:'1.2-2'}}</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax ({{taxRate}}%)</span>
+          <span>${{getTax() | number:'1.2-2'}}</span>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>${{getTotal() | number:'1.2-2'}}</span>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <!-- Actions -->
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button (click)="printOrder()">
+        <i class="ri-printer-line"></i>
+        Print Order
+      </button>
+      <button mat-raised-button color="primary" (click)="close()">
+        Close
+      </button>
+    </mat-dialog-actions>
+  </div>

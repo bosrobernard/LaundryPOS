@@ -28,6 +28,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+
 
 const MaterialComponents = [
   MatButtonModule,
@@ -57,7 +59,8 @@ const MaterialComponents = [
   MatChipsModule,
   MatSnackBarModule,
   MatTooltipModule,
-  MatDividerModule
+  MatDividerModule,
+  MatAutocompleteModule
 ];
 
 @NgModule({

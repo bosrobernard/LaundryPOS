@@ -1,12 +1,13 @@
-// src/app/features/orders/pages/order-form/order-form.component.ts
+/// src/app/features/orders/pages/order-form/order-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { OrderService } from '../services/order.service';
-
 import { Observable, debounceTime, of, startWith, switchMap } from 'rxjs';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+
 
 @Component({
   selector: 'app-order-form',
@@ -17,7 +18,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 
 
 export class OrderFormComponent implements OnInit {
-  orderForm: FormGroup | undefined;
+  orderForm: FormGroup;
   customerSearch = new FormControl('');
   filteredCustomers$: Observable<any[]> | undefined;
   selectedCustomer: any = null;
@@ -68,26 +69,15 @@ export class OrderFormComponent implements OnInit {
     { value: 'evening', label: '3:00 PM - 6:00 PM' }
   ];
 
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private orderService: OrderService,
-    private snackBar: MatSnackBar
-  ) {
-    this.initializeForm();
-    this.setupCustomerSearch();
-  }
-
-  ngOnInit() {
-    const id = this.route.snapshot.params['id'];
-    if (id) {
-      this.isEditMode = true;
-      this.loadOrderData(id);
-    }
-  }
-
-  private initializeForm() {
+ 
+    constructor(
+      private fb: FormBuilder,
+      private route: ActivatedRoute,
+      private router: Router,
+      private orderService: OrderService,
+      private snackBar: MatSnackBar
+    ){
+    // Initialize form in constructor
     this.orderForm = this.fb.group({
       customerId: ['', Validators.required],
       items: this.fb.array([], Validators.required),
@@ -105,7 +95,20 @@ export class OrderFormComponent implements OnInit {
       instructions: [''],
       status: ['pending']
     });
+
+    this.setupCustomerSearch();
   }
+
+
+  ngOnInit() {
+    const id = this.route.snapshot.params['id'];
+    if (id) {
+      this.isEditMode = true;
+      this.loadOrderData(id);
+    }
+  }
+
+
 
   private setupCustomerSearch() {
     this.filteredCustomers$ = this.customerSearch.valueChanges.pipe(
@@ -140,8 +143,9 @@ export class OrderFormComponent implements OnInit {
     // Implement form patching logic
   }
 
+
   get orderItems() {
-    return this.orderForm?.get('items') as FormArray;
+    return this.orderForm.get('items') as FormArray;  // Remove the optional chaining
   }
 
   addOrderItem() {
@@ -171,7 +175,7 @@ export class OrderFormComponent implements OnInit {
   onCustomerSelected(event: MatAutocompleteSelectedEvent) {
     const customer = event.option.value;
     this.selectedCustomer = customer;
-    this.orderForm?.patchValue({
+    this.orderForm.patchValue({
       customerId: customer.id
     });
   }
@@ -179,13 +183,14 @@ export class OrderFormComponent implements OnInit {
   clearSelectedCustomer() {
     this.selectedCustomer = null;
     this.customerSearch.setValue('');
-    this.orderForm?.patchValue({
+    this.orderForm.patchValue({
       customerId: ''
     });
   }
 
+
   onSameAddressChange(event: MatCheckboxChange) {
-    const addressGroup = this.orderForm?.get('deliveryAddress');
+    const addressGroup = this.orderForm.get('deliveryAddress');
     if (event.checked && this.selectedCustomer) {
       addressGroup?.patchValue({
         street: this.selectedCustomer.address.street,
@@ -202,6 +207,8 @@ export class OrderFormComponent implements OnInit {
       });
     }
   }
+
+
 
   getStatusIcon(status: string): string {
     switch (status.toLowerCase()) {
@@ -233,7 +240,7 @@ export class OrderFormComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.orderForm?.valid) {
+    if (this.orderForm.valid) {
       this.isSubmitting = true;
       const orderData = this.prepareOrderData();
 
@@ -257,6 +264,7 @@ export class OrderFormComponent implements OnInit {
       });
     }
   }
+
 
   private prepareOrderData() {
     const formValue = this.orderForm?.value;

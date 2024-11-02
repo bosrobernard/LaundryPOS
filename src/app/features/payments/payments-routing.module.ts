@@ -6,7 +6,10 @@ const routes: Routes = [
   {
     path: '',
     component: PaymentListComponent,
-    // canActivate: [AuthGuard]
+  },
+  {
+    path: 'payment-list',
+    component: PaymentListComponent,
   },
   // {
   //   path: ':id',

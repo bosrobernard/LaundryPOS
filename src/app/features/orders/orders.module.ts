@@ -4,20 +4,23 @@ import { CommonModule } from '@angular/common';
 import { OrdersRoutingModule } from './orders-routing.module';
 import { OrderListComponent } from './order-list/order-list.component';
 import { OrderFormComponent } from './order-form/order-form.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../shared/material.module';
+import { OrderItemsDialogComponent } from './components/order-items-dialog/order-items-dialog/order-items-dialog.component';
 
 
 @NgModule({
   declarations: [
     OrderListComponent,
-    OrderFormComponent
+    OrderFormComponent,
+    OrderItemsDialogComponent
   ],
   imports: [
     CommonModule,
     OrdersRoutingModule,
     FormsModule,
-    MaterialModule
+    MaterialModule,
+    ReactiveFormsModule
   ]
 })
 export class OrdersModule { }

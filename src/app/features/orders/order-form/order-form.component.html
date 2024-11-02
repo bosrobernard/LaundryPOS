@@ -220,7 +220,7 @@
                   Same as customer address
                 </mat-checkbox>
 
-                <ng-container *ngIf="!orderForm.get('deliveryAddress.sameAsCustomer')?.value">
+                <ng-container *ngIf="!orderForm?.get('deliveryAddress.sameAsCustomer')?.value">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Street Address</mat-label>
                     <input matInput formControlName="street">

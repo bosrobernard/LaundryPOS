@@ -11,7 +11,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { SharedModule } from './shared/shared.module';
 import { CoreModule } from './core/core.module';
 import { LayoutModule } from './layout/layout.module';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from './shared/material.module';
 
 
 @NgModule({
@@ -29,6 +30,8 @@ import { FormsModule } from '@angular/forms';
     LayoutModule, 
     AppRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
+    MaterialModule
   ],
   providers: [
     provideAnimationsAsync()
