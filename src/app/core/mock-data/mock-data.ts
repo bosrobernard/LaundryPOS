@@ -346,7 +346,8 @@ export const MOCK_ADMINS: Admin[] = [
     lastLogin: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
-    status: 'active'
+    status: 'active',
+    avatar: ''
   },
   // Add more mock admins as needed
 ];

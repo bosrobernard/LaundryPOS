@@ -4,7 +4,9 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'timeAgo'
 })
 export class TimeAgoPipe implements PipeTransform {
-  transform(value: Date): string {
+  transform(value: Date | undefined): string {
+    if (!value) return 'Never logged in';
+    
     const now = new Date().getTime();
     const timeStamp = new Date(value).getTime();
     const difference = now - timeStamp;

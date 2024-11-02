@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 
 import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileViewComponent } from './profile-view/profile-view.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from '../../shared/shared.module';
+import { MaterialModule } from '../../shared/material.module';
 
 
 @NgModule({
@@ -11,7 +14,10 @@ import { ProfileViewComponent } from './profile-view/profile-view.component';
   ],
   imports: [
     CommonModule,
-    ProfileRoutingModule
+    ProfileRoutingModule,
+    ReactiveFormsModule,
+    SharedModule,
+    MaterialModule
   ]
 })
 export class ProfileModule { }

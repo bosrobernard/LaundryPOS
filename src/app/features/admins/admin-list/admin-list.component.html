@@ -1,53 +1,190 @@
-<div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">Admin Management</h2>
-      <button class="btn-primary" (click)="addAdmin()">
-        Add Admin
+<!-- admin-list.component.html -->
+<div class="admin-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1 class="title">Admin Management</h1>
+        <p class="subtitle">Manage system administrators and their permissions</p>
+      </div>
+      <button mat-raised-button color="primary" class="create-btn" (click)="addAdmin()">
+        <i class="ri-user-add-line"></i>
+        Add New Admin
       </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div *ngFor="let admin of admins" class="admin-card">
-        <div class="card-header">
-          <div class="avatar">
-            <img [src]="admin.avatar || 'assets/default-avatar.png'" 
-                 [alt]="admin.name">
-          </div>
-          <div class="role-badge" [class]="admin.role">
-            {{admin.role.replace('_', ' ') | titlecase}}
-          </div>
+    <!-- Admin Stats -->
+    <div class="stats-cards">
+      <mat-card class="stat-card">
+        <div class="stat-icon total">
+          <i class="ri-team-line"></i>
         </div>
-        
-        <div class="card-content">
-          <h3 class="name">{{admin.name}}</h3>
-          <p class="email">{{admin.email}}</p>
-          <p class="phone">{{admin.phone}}</p>
-          <p class="address">{{admin.address}}</p>
-          
-          <div class="permissions">
-            <h4>Permissions</h4>
-            <div class="permission-tags">
-              <span *ngFor="let permission of admin.permissions" 
-                    class="permission-tag">
-                {{permission.replace('_', ' ') | titlecase}}
-              </span>
-            </div>
-          </div>
+        <div class="stat-content">
+          <p class="stat-label">Total Admins</p>
+          <h3 class="stat-value">{{admins.length}}</h3>
+        </div>
+      </mat-card>
 
-          <div class="last-login" *ngIf="admin.lastLogin">
-            <small>Last Login: {{admin.lastLogin | date:'medium'}}</small>
-          </div>
+      <mat-card class="stat-card">
+        <div class="stat-icon active">
+          <i class="ri-shield-user-line"></i>
         </div>
+        <div class="stat-content">
+          <p class="stat-label">Super Admins</p>
+          <h3 class="stat-value">{{getSuperAdminCount()}}</h3>
+        </div>
+      </mat-card>
 
-        <div class="card-actions">
-          <button class="btn-edit" (click)="editAdmin(admin)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button class="btn-delete" (click)="deleteAdmin(admin)"
-                  *ngIf="admin.id !== currentUserId">
-            <mat-icon>delete</mat-icon>
-          </button>
+      <mat-card class="stat-card">
+        <div class="stat-icon online">
+          <i class="ri-user-follow-line"></i>
         </div>
-      </div>
+        <div class="stat-content">
+          <p class="stat-label">Online Now</p>
+          <h3 class="stat-value">{{getOnlineCount()}}</h3>
+        </div>
+      </mat-card>
     </div>
   </div>
+
+  <!-- Filters Section -->
+  <mat-card class="filters-card">
+    <div class="filters-content">
+      <div class="search-box">
+        <i class="ri-search-line"></i>
+        <input 
+          type="text" 
+          placeholder="Search admins..." 
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="filterAdmins()"
+        >
+      </div>
+
+      <div class="filters-group">
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-select [(ngModel)]="selectedRole" (selectionChange)="filterAdmins()">
+            <mat-option value="all">All Roles</mat-option>
+            <mat-option value="super_admin">Super Admin</mat-option>
+            <mat-option value="admin">Admin</mat-option>
+            <mat-option value="manager">Manager</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Sort By</mat-label>
+          <mat-select [(ngModel)]="sortBy" (selectionChange)="filterAdmins()">
+            <mat-option value="name">Name</mat-option>
+            <mat-option value="role">Role</mat-option>
+            <mat-option value="lastLogin">Last Login</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Admin Cards Grid -->
+  <div class="admin-grid">
+    <mat-card class="admin-card" *ngFor="let admin of filteredAdmins">
+      <div class="card-header" [class]="admin.role">
+        <div class="online-status" [class.online]="isOnline(admin)"></div>
+        <div class="avatar-container">
+          <img [src]="admin.avatar || 'assets/default-avatar.png'" 
+               [alt]="admin.name"
+               class="avatar-image">
+        </div>
+        <div class="role-badge" [class]="admin.role">
+          <i class="ri-shield-star-line" *ngIf="admin.role === 'super_admin'"></i>
+          <i class="ri-shield-check-line" *ngIf="admin.role === 'admin'"></i>
+          <i class="ri-shield-user-line" *ngIf="admin.role === 'manager'"></i>
+          {{admin.role.replace('_', ' ') | titlecase}}
+        </div>
+      </div>
+
+      <mat-card-content>
+        <div class="admin-info">
+          <h3 class="admin-name">{{admin.name}}</h3>
+          <div class="contact-info">
+            <a href="mailto:{{admin.email}}" class="info-item">
+              <i class="ri-mail-line"></i>
+              {{admin.email}}
+            </a>
+            <a href="tel:{{admin.phone}}" class="info-item">
+              <i class="ri-phone-line"></i>
+              {{admin.phone}}
+            </a>
+            <span class="info-item">
+              <i class="ri-map-pin-line"></i>
+              {{admin.address}}
+            </span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="permissions-section">
+          <h4 class="section-title">
+            <i class="ri-lock-password-line"></i>
+            Permissions
+          </h4>
+          <div class="permission-tags">
+            <span *ngFor="let permission of admin.permissions" 
+                  class="permission-tag"
+                  [matTooltip]="getPermissionDescription(permission)">
+              <i [class]="getPermissionIcon(permission)"></i>
+              {{permission.replace('_', ' ') | titlecase}}
+            </span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="activity-section">
+          <div class="last-active">
+            <i class="ri-time-line"></i>
+            Last Login: {{admin.lastLogin | timeAgo}}
+          </div>
+        </div>
+      </mat-card-content>
+
+      <div class="card-actions">
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <i class="ri-more-2-fill"></i>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="viewAdmin(admin)">
+            <i class="ri-eye-line"></i>
+            View Profile
+          </button>
+          <button mat-menu-item (click)="editAdmin(admin)">
+            <i class="ri-edit-2-line"></i>
+            Edit Details
+          </button>
+          <button mat-menu-item (click)="managePermissions(admin)">
+            <i class="ri-lock-line"></i>
+            Manage Permissions
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item class="delete-action" 
+                  (click)="deleteAdmin(admin)"
+                  *ngIf="admin.id !== currentUserId">
+            <i class="ri-delete-bin-line"></i>
+            Delete Admin
+          </button>
+        </mat-menu>
+      </div>
+    </mat-card>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredAdmins.length === 0">
+      <img src="assets/empty-admins.svg" alt="No admins found">
+      <h3>No Admins Found</h3>
+      <p *ngIf="searchQuery || selectedRole !== 'all'">Try adjusting your filters</p>
+      <p *ngIf="!searchQuery && selectedRole === 'all'">Get started by adding your first admin</p>
+      <button mat-raised-button color="primary" (click)="addAdmin()">
+        <i class="ri-user-add-line"></i>
+        Add New Admin
+      </button>
+    </div>
+  </div>
+</div>

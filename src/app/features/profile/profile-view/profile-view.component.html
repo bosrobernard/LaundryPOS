@@ -1,1 +1,215 @@
-<p>profile-view works!</p>
+<div class="profile-container">
+    <!-- Loading Spinner -->
+    <mat-spinner *ngIf="isLoading" diameter="40" class="loading-spinner"></mat-spinner>
+  
+    <ng-container *ngIf="!isLoading && profile">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="header-content">
+          <div class="user-info">
+            <div class="avatar-section">
+              <div class="avatar-container" [class.editing]="isEditing">
+                <img [src]="profile.avatar || 'assets/default-avatar.png'" 
+                     [alt]="profile.firstName"
+                     class="avatar-image">
+                <div class="avatar-overlay" *ngIf="isEditing">
+                  <input type="file" 
+                         (change)="onAvatarChange($event)"
+                         accept="image/*"
+                         class="file-input">
+                  <i class="ri-camera-line"></i>
+                  <span>Change Photo</span>
+                </div>
+              </div>
+            </div>
+            <div class="user-details">
+              <h1>{{profile.firstName}} {{profile.lastName}}</h1>
+              <p class="role">{{profile.role}}</p>
+              <p class="join-date">Member since {{profile.joinDate | date:'mediumDate'}}</p>
+            </div>
+          </div>
+          <div class="actions">
+            <button mat-raised-button color="primary" *ngIf="!isEditing" (click)="onEdit()">
+              <i class="ri-edit-line"></i>
+              Edit Profile
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <div class="profile-content">
+        <!-- Profile Form -->
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+          <mat-card class="form-section">
+            <mat-card-header>
+              <mat-card-title>
+                <i class="ri-user-line"></i>
+                Personal Information
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>First Name</mat-label>
+                  <input matInput formControlName="firstName" [readonly]="!isEditing">
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline">
+                  <mat-label>Last Name</mat-label>
+                  <input matInput formControlName="lastName" [readonly]="!isEditing">
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline">
+                  <mat-label>Email</mat-label>
+                  <input matInput formControlName="email" [readonly]="!isEditing">
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline">
+                  <mat-label>Phone</mat-label>
+                  <input matInput formControlName="phone" [readonly]="!isEditing">
+                </mat-form-field>
+              </div>
+            </mat-card-content>
+          </mat-card>
+  
+          <mat-card class="form-section" formGroupName="address">
+            <mat-card-header>
+              <mat-card-title>
+                <i class="ri-map-pin-line"></i>
+                Address
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="form-grid">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Street Address</mat-label>
+                  <input matInput formControlName="street" [readonly]="!isEditing">
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline">
+                  <mat-label>City</mat-label>
+                  <input matInput formControlName="city" [readonly]="!isEditing">
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline">
+                  <mat-label>State</mat-label>
+                  <input matInput formControlName="state" [readonly]="!isEditing">
+                </mat-form-field>
+  
+                <mat-form-field appearance="outline">
+                  <mat-label>ZIP Code</mat-label>
+                  <input matInput formControlName="zipCode" [readonly]="!isEditing">
+                </mat-form-field>
+              </div>
+            </mat-card-content>
+          </mat-card>
+  
+          <mat-card class="form-section" formGroupName="settings">
+            <mat-card-header>
+              <mat-card-title>
+                <i class="ri-settings-4-line"></i>
+                Settings
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="settings-grid">
+                <mat-checkbox formControlName="notifications" [disabled]="!isEditing">
+                  <div class="checkbox-content">
+                    <span>Notifications</span>
+                    <small>Receive notifications about orders and updates</small>
+                  </div>
+                </mat-checkbox>
+  
+                <mat-checkbox formControlName="twoFactorAuth" [disabled]="!isEditing">
+                  <div class="checkbox-content">
+                    <span>Two-Factor Authentication</span>
+                    <small>Enable additional security for your account</small>
+                  </div>
+                </mat-checkbox>
+  
+                <mat-checkbox formControlName="emailUpdates" [disabled]="!isEditing">
+                  <div class="checkbox-content">
+                    <span>Email Updates</span>
+                    <small>Receive system updates and newsletters</small>
+                  </div>
+                </mat-checkbox>
+              </div>
+            </mat-card-content>
+          </mat-card>
+  
+          <!-- Form Actions -->
+          <div class="form-actions" *ngIf="isEditing">
+            <button mat-stroked-button type="button" (click)="onCancel()">
+              Cancel
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || isSaving">
+              <mat-spinner diameter="20" *ngIf="isSaving"></mat-spinner>
+              <span *ngIf="!isSaving">Save Changes</span>
+            </button>
+          </div>
+        </form>
+  
+        <!-- Statistics Section -->
+        <div class="stats-section">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <i class="ri-bar-chart-line"></i>
+                Performance Statistics
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <i class="ri-shopping-cart-line"></i>
+                  <div class="stat-content">
+                    <span class="stat-value">{{profile.stats.totalOrdersProcessed}}</span>
+                    <span class="stat-label">Orders Processed</span>
+                  </div>
+                </div>
+  
+                <div class="stat-item">
+                  <i class="ri-user-smile-line"></i>
+                  <div class="stat-content">
+                    <span class="stat-value">{{profile.stats.customersHelped}}</span>
+                    <span class="stat-label">Customers Helped</span>
+                  </div>
+                </div>
+  
+                <div class="stat-item">
+                  <i class="ri-timer-line"></i>
+                  <div class="stat-content">
+                    <span class="stat-value">{{profile.stats.avgResponseTime}}</span>
+                    <span class="stat-label">Avg. Response Time</span>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+  
+          <!-- Recent Activity -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <i class="ri-history-line"></i>
+                Recent Activity
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="activity-list">
+                <div class="activity-item" *ngFor="let activity of recentActivity">
+                  <div class="activity-icon">
+                    <i class="ri-checkbox-circle-line"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p class="activity-text">{{activity.action}}</p>
+                    <small class="activity-time">{{activity.time | timeAgo}}</small>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </ng-container>
+  </div>
