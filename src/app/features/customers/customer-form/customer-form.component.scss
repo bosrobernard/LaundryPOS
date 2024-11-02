@@ -1,0 +1,282 @@
+// src/app/features/customers/pages/customer-form/customer-form.component.scss
+
+.form-container {
+    padding: 24px;
+    background: #f8fafc;
+    min-height: calc(100vh - 64px);
+  }
+  
+  .form-header {
+    margin-bottom: 24px;
+  
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+  
+      .back-btn {
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  
+        i {
+          font-size: 20px;
+        }
+      }
+  
+      .title-section {
+        h1 {
+          font-size: 24px;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0;
+        }
+  
+        p {
+          color: #64748b;
+          margin: 4px 0 0;
+        }
+      }
+    }
+  }
+  
+  .form-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .form-section {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+  
+    mat-card-header {
+      padding: 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+  
+      mat-card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+  
+        i {
+          font-size: 20px;
+          color: #64748b;
+        }
+      }
+    }
+  
+    mat-card-content {
+      padding: 24px;
+    }
+  }
+  
+  .avatar-upload {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px;
+  
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      cursor: pointer;
+      border: 2px solid #e2e8f0;
+      overflow: hidden;
+  
+      &:hover .upload-overlay {
+        opacity: 1;
+      }
+  
+      .upload-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        color: white;
+  
+        i {
+          font-size: 24px;
+          margin-bottom: 4px;
+        }
+  
+        span {
+          font-size: 12px;
+        }
+      }
+  
+      input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+    }
+  
+    .avatar-info {
+      h3 {
+        font-size: 16px;
+        font-weight: 500;
+        color: #1e293b;
+        margin: 0 0 4px;
+      }
+  
+      p {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  
+    .full-width {
+      grid-column: 1 / -1;
+    }
+  }
+  
+  .preferences-grid {
+    display: grid;
+    gap: 16px;
+  
+    .checkbox-content {
+      display: flex;
+      flex-direction: column;
+  
+      span {
+        font-size: 14px;
+        color: #1e293b;
+      }
+  
+      small {
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+    }
+  }
+  
+  // Continuing customer form styles...
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 24px;
+  
+    button {
+      min-width: 120px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+  
+      mat-spinner {
+        margin-right: 8px;
+      }
+    }
+  }
+  
+  // Responsive styles
+  @media (max-width: 768px) {
+    .form-container {
+      padding: 16px;
+    }
+  
+    .form-header {
+      .header-content {
+        .title-section {
+          h1 {
+            font-size: 20px;
+          }
+        }
+      }
+    }
+  
+    .avatar-upload {
+      flex-direction: column;
+      text-align: center;
+  
+      .avatar-info {
+        text-align: center;
+      }
+    }
+  
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .form-actions {
+      flex-direction: column-reverse;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+  
+  // Material overrides
+  ::ng-deep {
+    .mat-form-field-appearance-outline {
+      .mat-form-field-outline {
+        background: white;
+      }
+    }
+  
+    .mat-checkbox-label {
+      white-space: normal !important;
+    }
+  
+    .mat-form-field-subscript-wrapper {
+      margin-top: 4px !important;
+    }
+  
+    .mat-form-field-infix {
+      padding: 0.5em 0;
+    }
+  }
+  
+  // Animations
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .form-section {
+    animation: fadeIn 0.3s ease-out;
+    animation-fill-mode: both;
+  
+    @for $i from 1 through 5 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.1}s;
+      }
+    }
+  }

@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{data.mode === 'add' ? 'Add New Admin' : 'Edit Admin'}}</h2>
+    <mat-dialog-content>
+      <form [formGroup]="adminForm" class="admin-form">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="Enter email">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Phone</mat-label>
+          <input matInput formControlName="phone" placeholder="Enter phone">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="super_admin">Super Admin</mat-option>
+            <mat-option value="admin">Admin</mat-option>
+            <mat-option value="manager">Manager</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Address</mat-label>
+          <textarea matInput formControlName="address" placeholder="Enter address"></textarea>
+        </mat-form-field>
+
+        <div class="permissions-section">
+          <label>Permissions</label>
+          <mat-selection-list formControlName="permissions">
+            <mat-list-option value="manage_users">Manage Users</mat-list-option>
+            <mat-list-option value="manage_orders">Manage Orders</mat-list-option>
+            <mat-list-option value="manage_payments">Manage Payments</mat-list-option>
+            <mat-list-option value="manage_admins">Manage Admins</mat-list-option>
+          </mat-selection-list>
+        </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button color="primary" 
+              [disabled]="adminForm.invalid"
+              (click)="onSubmit()">
+        {{data.mode === 'add' ? 'Add' : 'Save'}}
+      </button>
+    </mat-dialog-actions>

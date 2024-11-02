@@ -1,0 +1,29 @@
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+  }
+
+  .main-content {
+    flex: 1;
+    margin-left: 260px;
+    transition: all 0.3s ease;
+    
+    &.expanded {
+      margin-left: 80px;
+    }
+  }
+
+  .content {
+    padding: 24px;
+    min-height: calc(100vh - 64px);
+  }
+
+  @media (max-width: 768px) {
+    .main-content {
+      margin-left: 0;
+      &.expanded {
+        margin-left: 0;
+      }
+    }
+  }

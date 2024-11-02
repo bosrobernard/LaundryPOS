@@ -1,0 +1,70 @@
+<div class="table-container">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold">Payments</h2>
+      <div class="stats flex gap-4">
+        <div class="stat-card">
+          <span class="label">Total Revenue</span>
+          <span class="value">${{totalRevenue}}</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Today's Payments</span>
+          <span class="value">${{todaysPayments}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters mb-4 flex gap-4">
+      <mat-form-field>
+        <mat-label>Date Range</mat-label>
+        <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date">
+          <input matEndDate formControlName="end" placeholder="End date">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Payment Method</mat-label>
+        <mat-select [(ngModel)]="selectedMethod" (selectionChange)="filterPayments()">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="cash">Cash</mat-option>
+          <mat-option value="card">Card</mat-option>
+          <mat-option value="online">Online</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <table class="min-w-full">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Customer</th>
+          <th>Order ID</th>
+          <th>Amount</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let payment of filteredPayments">
+          <td>#{{payment.transactionId || payment.id}}</td>
+          <td>{{payment.customerName}}</td>
+          <td>#{{payment.orderId}}</td>
+          <td>${{payment.amount}}</td>
+          <td>
+            <span class="method-badge" [class]="payment.paymentMethod">
+              {{payment.paymentMethod}}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class]="payment.status">
+              {{payment.status}}
+            </span>
+          </td>
+          <td>{{payment.createdAt | date:'medium'}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

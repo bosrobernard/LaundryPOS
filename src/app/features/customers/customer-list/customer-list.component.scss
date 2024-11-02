@@ -1,0 +1,500 @@
+// src/app/features/customers/pages/customer-list/customer-list.component.scss
+.customers-container {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: calc(100vh - 64px);
+}
+
+.page-header {
+  margin-bottom: 24px;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .header-title {
+      .title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+      }
+
+      .subtitle {
+        color: #64748b;
+        margin: 4px 0 0;
+      }
+    }
+
+    .create-btn {
+      height: 40px;
+      padding: 0 20px;
+      
+      i {
+        margin-right: 8px;
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i {
+        font-size: 24px;
+      }
+
+      &.total {
+        background: #f0f9ff;
+        color: #0369a1;
+      }
+
+      &.active {
+        background: #f0fdf4;
+        color: #15803d;
+      }
+
+      &.new {
+        background: #fdf4ff;
+        color: #a21caf;
+      }
+
+      &.revenue {
+        background: #fff7ed;
+        color: #c2410c;
+      }
+    }
+
+    .stat-content {
+      flex: 1;
+
+      .stat-label {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .stat-value {
+        color: #1e293b;
+        font-size: 24px;
+        // Continuing from where we left off...
+
+        font-weight: 600;
+        margin: 4px 0;
+      }
+
+      .trend {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+
+        &.positive {
+          color: #16a34a;
+        }
+
+        &.negative {
+          color: #dc2626;
+        }
+
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+.filters-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  background: white;
+
+  .filters-content {
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .search-box {
+      flex: 1;
+      min-width: 300px;
+      position: relative;
+
+      i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 20px;
+      }
+
+      input {
+        width: 100%;
+        height: 40px;
+        padding: 0 16px 0 40px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        color: #1e293b;
+        font-size: 14px;
+        transition: all 0.2s ease;
+
+        &:focus {
+          outline: none;
+          border-color: var(--primary-color);
+          background: white;
+          box-shadow: 0 0 0 3px rgba(var(--primary-color), 0.1);
+        }
+
+        &::placeholder {
+          color: #94a3b8;
+        }
+      }
+    }
+
+    .filters-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      mat-form-field {
+        width: 200px;
+      }
+
+      .filter-btn {
+        height: 40px;
+        padding: 0 16px;
+        
+        i {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+.table-card {
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+
+  .table-actions {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+
+    .selected-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .selected-count {
+        color: #64748b;
+        font-size: 14px;
+      }
+    }
+
+    .table-utilities {
+      display: flex;
+      gap: 12px;
+
+      button {
+        i {
+          margin-right: 8px;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .customers-table {
+    width: 100%;
+
+    .mat-header-cell {
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 600;
+      font-size: 12px;
+      padding: 12px 16px;
+      white-space: nowrap;
+    }
+
+    .mat-cell {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #1e293b;
+    }
+
+    .customer-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .customer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e2e8f0;
+      }
+
+      .customer-details {
+        .customer-name {
+          display: block;
+          font-weight: 500;
+          color: #1e293b;
+          margin-bottom: 2px;
+        }
+
+        .customer-email {
+          display: block;
+          font-size: 12px;
+          color: #64748b;
+        }
+      }
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-size: 13px;
+
+        i {
+          font-size: 16px;
+          color: #94a3b8;
+        }
+      }
+    }
+
+    .orders-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .order-count {
+        font-weight: 500;
+        color: #1e293b;
+      }
+
+      .order-value {
+        font-size: 13px;
+        color: #16a34a;
+      }
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+
+      i {
+        font-size: 14px;
+      }
+
+      &.active {
+        background: #f0fdf4;
+        color: #15803d;
+      }
+
+      &.inactive {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+    }
+
+    .date-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .date {
+        color: #1e293b;
+        font-size: 13px;
+      }
+
+      .time-ago {
+        color: #64748b;
+        font-size: 12px;
+      }
+    }
+
+    tr.selected-row {
+      background: #faf5ff;
+    }
+
+    tr:hover:not(.selected-row) {
+      background: #f8fafc;
+    }
+
+    .action-btn {
+      color: #64748b;
+
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .empty-state {
+    padding: 48px;
+    text-align: center;
+
+    img {
+      width: 240px;
+      margin-bottom: 24px;
+      opacity: 0.8;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: #64748b;
+      margin: 0 0 24px;
+    }
+  }
+
+  mat-paginator {
+    border-top: 1px solid #e2e8f0;
+  }
+}
+
+::ng-deep {
+  .actions-menu {
+    min-width: 200px;
+
+    .mat-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+
+      i {
+        font-size: 18px;
+        color: #64748b;
+      }
+
+      &:hover {
+        i {
+          color: inherit;
+        }
+      }
+
+      &.delete-action {
+        color: #dc2626;
+
+        i {
+          color: #dc2626;
+        }
+      }
+    }
+  }
+
+  .mat-menu-panel {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 1024px) {
+  .filters-content {
+    .filters-group {
+      flex-direction: column;
+
+      mat-form-field {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .customers-container {
+    padding: 16px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .create-btn {
+      width: 100%;
+    }
+  }
+
+  .table-actions {
+    flex-direction: column;
+    gap: 16px;
+
+    .selected-actions, .table-utilities {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  .customers-table {
+    .customer-info {
+      .customer-avatar {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .contact-info, .orders-info {
+      white-space: nowrap;
+    }
+  }
+}

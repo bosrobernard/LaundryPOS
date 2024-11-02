@@ -1,0 +1,225 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Dashboard Overview</h1>
+      <p class="dashboard-subtitle">Welcome back, {{currentUser.name}}!</p>
+    </div>
+    
+    <div class="dashboard-actions">
+      <mat-form-field appearance="outline" class="date-picker">
+        <mat-label>Date Range</mat-label>
+        <mat-select [(value)]="selectedDateRange">
+          <mat-option value="today">Today</mat-option>
+          <mat-option value="week">This Week</mat-option>
+          <mat-option value="month">This Month</mat-option>
+          <mat-option value="year">This Year</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" class="action-button">
+        <i class="ri-download-2-line"></i>
+        Download Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <mat-card class="stats-card" [class.highlight]="isHighlight('orders')">
+      <mat-card-content>
+        <div class="stats-content">
+          <div class="stats-icon orders">
+            <i class="ri-shopping-bag-3-line"></i>
+          </div>
+          <div class="stats-info">
+            <h3 class="stats-value">{{stats?.totalOrders}}</h3>
+            <p class="stats-label">Total Orders</p>
+            <div class="stats-trend positive">
+              <i class="ri-arrow-up-line"></i>
+              <span>12.5%</span>
+              <small>vs last month</small>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card" [class.highlight]="isHighlight('revenue')">
+      <mat-card-content>
+        <div class="stats-content">
+          <div class="stats-icon revenue">
+            <i class="ri-money-dollar-circle-line"></i>
+          </div>
+          <div class="stats-info">
+            <h3 class="stats-value">${{stats?.totalRevenue | number:'1.0-0'}}</h3>
+            <p class="stats-label">Total Revenue</p>
+            <div class="stats-trend positive">
+              <i class="ri-arrow-up-line"></i>
+              <span>8.2%</span>
+              <small>vs last month</small>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card" [class.highlight]="isHighlight('customers')">
+      <mat-card-content>
+        <div class="stats-content">
+          <div class="stats-icon customers">
+            <i class="ri-user-smile-line"></i>
+          </div>
+          <div class="stats-info">
+            <h3 class="stats-value">{{stats?.totalCustomers}}</h3>
+            <p class="stats-label">Total Customers</p>
+            <div class="stats-trend positive">
+              <i class="ri-arrow-up-line"></i>
+              <span>5.3%</span>
+              <small>vs last month</small>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stats-card" [class.highlight]="isHighlight('pending')">
+      <mat-card-content>
+        <div class="stats-content">
+          <div class="stats-icon pending">
+            <i class="ri-time-line"></i>
+          </div>
+          <div class="stats-info">
+            <h3 class="stats-value">{{stats?.pendingOrders}}</h3>
+            <p class="stats-label">Pending Orders</p>
+            <div class="stats-trend negative">
+              <i class="ri-arrow-down-line"></i>
+              <span>3.1%</span>
+              <small>vs last month</small>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Charts Section -->
+  <div id="revenueChart">
+    <apx-chart
+      [series]="chartOptions['series']"
+      [chart]="chartOptions['chart']"
+      [xaxis]="chartOptions['xaxis']"
+      [stroke]="chartOptions['stroke']"
+      [dataLabels]="chartOptions['dataLabels']"
+      [yaxis]="chartOptions['yaxis']"
+      [labels]="chartOptions['labels']"
+      [legend]="chartOptions['legend']"
+      [title]="chartOptions['title']"
+      [fill]="chartOptions['fill']"
+    ></apx-chart>
+  </div>
+  
+  <!-- And for the pie chart -->
+  <div id="ordersChart">
+    <apx-chart
+      [series]="pieChartOptions['series']"
+      [chart]="pieChartOptions['chart']"
+      [labels]="pieChartOptions['labels']"
+      [responsive]="pieChartOptions['responsive']"
+    ></apx-chart>
+  </div>
+
+
+
+
+  <!-- Recent Orders and Activity -->
+  <div class="bottom-grid">
+    <mat-card class="recent-orders">
+      <mat-card-header>
+        <mat-card-title>Recent Orders</mat-card-title>
+        <button mat-button color="primary">View All</button>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="recentOrders" class="orders-table">
+          <ng-container matColumnDef="orderNumber">
+            <th mat-header-cell *matHeaderCellDef>Order #</th>
+            <td mat-cell *matCellDef="let order">
+              <span class="order-number">#{{order.number}}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="customer">
+            <th mat-header-cell *matHeaderCellDef>Customer</th>
+            <td mat-cell *matCellDef="let order">
+              <div class="customer-info">
+                <img [src]="order.customerAvatar" [alt]="order.customerName">
+                <span>{{order.customerName}}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let order">
+              <span class="amount">${{order.amount}}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let order">
+              <span class="status-badge" [class]="order.status.toLowerCase()">
+                {{order.status}}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let order">
+              <button mat-icon-button [matMenuTriggerFor]="actionMenu">
+                <i class="ri-more-2-fill"></i>
+              </button>
+              <mat-menu #actionMenu="matMenu">
+                <button mat-menu-item>
+                  <i class="ri-eye-line"></i>
+                  View Details
+                </button>
+                <button mat-menu-item>
+                  <i class="ri-edit-line"></i>
+                  Edit Order
+                </button>
+                <button mat-menu-item class="delete">
+                  <i class="ri-delete-bin-line"></i>
+                  Delete Order
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="activity-timeline">
+      <mat-card-header>
+        <mat-card-title>Recent Activity</mat-card-title>
+        <button mat-button color="primary">View All</button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="timeline">
+          <div *ngFor="let activity of recentActivity" class="timeline-item">
+            <div class="timeline-icon" [class]="activity.type">
+              <i [class]="activity.icon"></i>
+            </div>
+            <div class="timeline-content">
+              <p class="activity-message">{{activity.message}}</p>
+              <span class="activity-time">{{activity.time | timeAgo}}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

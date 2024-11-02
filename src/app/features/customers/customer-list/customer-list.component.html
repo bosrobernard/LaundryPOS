@@ -1,0 +1,295 @@
+<!-- src/app/features/customers/pages/customer-list/customer-list.component.html -->
+<div class="customers-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1 class="title">Customer Management</h1>
+        <p class="subtitle">View and manage your customer base</p>
+      </div>
+      <button mat-raised-button color="primary" class="create-btn" (click)="addNewCustomer()">
+        <i class="ri-user-add-line"></i>
+        Add New Customer
+      </button>
+    </div>
+
+    <!-- Customer Stats -->
+    <div class="stats-cards">
+      <mat-card class="stat-card">
+        <div class="stat-icon total">
+          <i class="ri-team-line"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Total Customers</p>
+          <h3 class="stat-value">{{customerStats.total}}</h3>
+          <span class="trend positive">
+            <i class="ri-arrow-up-line"></i>
+            12% vs last month
+          </span>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <div class="stat-icon active">
+          <i class="ri-user-smile-line"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Active Customers</p>
+          <h3 class="stat-value">{{customerStats.active}}</h3>
+          <span class="trend positive">
+            <i class="ri-arrow-up-line"></i>
+            8% vs last month
+          </span>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <div class="stat-icon new">
+          <i class="ri-user-add-line"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">New This Month</p>
+          <h3 class="stat-value">{{customerStats.new}}</h3>
+          <span class="trend positive">
+            <i class="ri-arrow-up-line"></i>
+            5% vs last month
+          </span>
+        </div>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <div class="stat-icon revenue">
+          <i class="ri-money-dollar-circle-line"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Avg. Revenue/Customer</p>
+          <h3 class="stat-value">${{customerStats.avgRevenue}}</h3>
+          <span class="trend negative">
+            <i class="ri-arrow-down-line"></i>
+            3% vs last month
+          </span>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+  <mat-card class="filters-card">
+    <div class="filters-content">
+      <div class="search-box">
+        <i class="ri-search-line"></i>
+        <input 
+          type="text" 
+          placeholder="Search customers..." 
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="filterCustomers()"
+        >
+      </div>
+
+      <div class="filters-group">
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="filterCustomers()">
+            <mat-option value="all">All Customers</mat-option>
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="inactive">Inactive</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Sort By</mat-label>
+          <mat-select [(ngModel)]="sortBy" (selectionChange)="filterCustomers()">
+            <mat-option value="name">Name</mat-option>
+            <mat-option value="date">Join Date</mat-option>
+            <mat-option value="orders">Orders</mat-option>
+            <mat-option value="revenue">Revenue</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button class="filter-btn" (click)="resetFilters()">
+          <i class="ri-refresh-line"></i>
+          Reset Filters
+        </button>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Customers Table -->
+  <mat-card class="table-card">
+    <div class="table-actions">
+      <div class="selected-actions" *ngIf="selection.selected.length > 0">
+        <span class="selected-count">
+          {{selection.selected.length}} customers selected
+        </span>
+        <button mat-stroked-button (click)="bulkExport()">
+          <i class="ri-download-2-line"></i>
+          Export Selected
+        </button>
+        <button mat-stroked-button color="warn" (click)="bulkDelete()">
+          <i class="ri-delete-bin-line"></i>
+          Delete Selected
+        </button>
+      </div>
+
+      <div class="table-utilities">
+        <button mat-stroked-button [matMenuTriggerFor]="exportMenu">
+          <i class="ri-download-2-line"></i>
+          Export
+          <i class="ri-arrow-down-s-line"></i>
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="exportAs('excel')">
+            <i class="ri-file-excel-2-line"></i>
+            Export as Excel
+          </button>
+          <button mat-menu-item (click)="exportAs('csv')">
+            <i class="ri-file-text-line"></i>
+            Export as CSV
+          </button>
+          <button mat-menu-item (click)="exportAs('pdf')">
+            <i class="ri-file-pdf-line"></i>
+            Export as PDF
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" matSort class="customers-table">
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggle() : null"
+                      [checked]="selection.hasValue() && isAllSelected()"
+                      [indeterminate]="selection.hasValue() && !isAllSelected()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()"
+                      (change)="$event ? selection.toggle(row) : null"
+                      [checked]="selection.isSelected(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Customer Details Column -->
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer </th>
+        <td mat-cell *matCellDef="let customer">
+          <div class="customer-info">
+            <img [src]="customer.avatar || 'assets/default-avatar.png'" 
+                 [alt]="customer.name"
+                 class="customer-avatar">
+            <div class="customer-details">
+              <span class="customer-name">{{customer.name}}</span>
+              <span class="customer-email">{{customer.email}}</span>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Contact Column -->
+      <ng-container matColumnDef="contact">
+        <th mat-header-cell *matHeaderCellDef> Contact </th>
+        <td mat-cell *matCellDef="let customer">
+          <div class="contact-info">
+            <span class="phone">
+              <i class="ri-phone-line"></i>
+              {{customer.phone}}
+            </span>
+            <span class="address">
+              <i class="ri-map-pin-line"></i>
+              {{customer.address}}
+            </span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Orders Column -->
+      <ng-container matColumnDef="orders">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Orders </th>
+        <td mat-cell *matCellDef="let customer">
+          <div class="orders-info">
+            <span class="order-count">{{customer.totalOrders}} orders</span>
+            <span class="order-value">${{customer.totalSpent | number:'1.2-2'}}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+        <td mat-cell *matCellDef="let customer">
+          <span class="status-badge" [class]="customer.status">
+            <i class="ri-checkbox-circle-line" *ngIf="customer.status === 'active'"></i>
+            <i class="ri-close-circle-line" *ngIf="customer.status === 'inactive'"></i>
+            {{customer.status}}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Join Date Column -->
+      <ng-container matColumnDef="joinDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Joined </th>
+        <td mat-cell *matCellDef="let customer">
+          <div class="date-info">
+            <span class="date">{{customer.joinDate | date}}</span>
+            <small class="time-ago">{{customer.joinDate | timeAgo}}</small>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let customer">
+          <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
+            <i class="ri-more-2-fill"></i>
+          </button>
+          <mat-menu #menu="matMenu" class="actions-menu">
+            <button mat-menu-item (click)="viewCustomer(customer)">
+              <i class="ri-eye-line"></i>
+              <span>View Profile</span>
+            </button>
+            <button mat-menu-item (click)="editCustomer(customer)">
+              <i class="ri-edit-line"></i>
+              <span>Edit Details</span>
+            </button>
+            <button mat-menu-item (click)="viewOrders(customer)">
+              <i class="ri-shopping-bag-line"></i>
+              <span>View Orders</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item class="delete-action" (click)="deleteCustomer(customer)">
+              <i class="ri-delete-bin-line"></i>
+              <span>Delete Customer</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          [class.selected-row]="selection.isSelected(row)"
+          (click)="selection.toggle(row)">
+      </tr>
+    </table>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="dataSource.data.length === 0">
+      <img src="assets/empty-customers.svg" alt="No customers found">
+      <h3>No Customers Found</h3>
+      <p>Get started by adding your first customer</p>
+      <button mat-raised-button color="primary" (click)="addNewCustomer()">
+        Add New Customer
+      </button>
+    </div>
+
+    <!-- Paginator -->
+    <mat-paginator 
+      [length]="totalCustomers"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </mat-card>
+</div>

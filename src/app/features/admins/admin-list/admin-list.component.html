@@ -1,0 +1,53 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">Admin Management</h2>
+      <button class="btn-primary" (click)="addAdmin()">
+        Add Admin
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let admin of admins" class="admin-card">
+        <div class="card-header">
+          <div class="avatar">
+            <img [src]="admin.avatar || 'assets/default-avatar.png'" 
+                 [alt]="admin.name">
+          </div>
+          <div class="role-badge" [class]="admin.role">
+            {{admin.role.replace('_', ' ') | titlecase}}
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <h3 class="name">{{admin.name}}</h3>
+          <p class="email">{{admin.email}}</p>
+          <p class="phone">{{admin.phone}}</p>
+          <p class="address">{{admin.address}}</p>
+          
+          <div class="permissions">
+            <h4>Permissions</h4>
+            <div class="permission-tags">
+              <span *ngFor="let permission of admin.permissions" 
+                    class="permission-tag">
+                {{permission.replace('_', ' ') | titlecase}}
+              </span>
+            </div>
+          </div>
+
+          <div class="last-login" *ngIf="admin.lastLogin">
+            <small>Last Login: {{admin.lastLogin | date:'medium'}}</small>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn-edit" (click)="editAdmin(admin)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="btn-delete" (click)="deleteAdmin(admin)"
+                  *ngIf="admin.id !== currentUserId">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
