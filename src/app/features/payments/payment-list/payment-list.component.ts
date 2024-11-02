@@ -18,7 +18,7 @@ export class PaymentListComponent implements OnInit {
   dateRange: FormGroup;
 
   constructor(
-    private paymentService: PaymentService,
+    // private paymentService: PaymentService,
     private fb: FormBuilder
   ) {
     this.dateRange = this.fb.group({
@@ -33,16 +33,16 @@ export class PaymentListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadPayments();
+    // this.loadPayments();
   }
 
-  loadPayments() {
-    this.paymentService.getPayments().subscribe(payments => {
-      this.payments = payments;
-      this.calculateStats();
-      this.filterPayments();
-    });
-  }
+  // loadPayments() {
+  //   this.paymentService.getPayments().subscribe(payments => {
+  //     this.payments = payments;
+  //     this.calculateStats();
+  //     this.filterPayments();
+  //   });
+  // }
 
   calculateStats() {
     // Calculate total revenue
