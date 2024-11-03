@@ -336,18 +336,18 @@ import { Order, OrderStatus } from '../../features/orders/models/order.model';
 
 export const MOCK_ADMINS: Admin[] = [
   {
-    id: 1,
+    _id: 1,
     name: 'Admin Smith',
-    email: 'admin.smith@example.com',
+    // email: 'admin.smith@example.com',
     phone: '(555) 111-2222',
-    role: 'super_admin',
-    address: '123 Admin St',
-    permissions: ['manage_users', 'manage_orders'],
-    lastLogin: new Date(),
+    role: 'SUPER_ADMIN',
+    // address: '123 Admin St',
+    // permissions: ['manage_users', 'manage_orders'],
+    // lastLogin: new Date(),
     createdAt: new Date(),
-    updatedAt: new Date(),
-    status: 'active',
-    avatar: ''
+    // updatedAt: new Date(),
+    // status: 'active',
+    // avatar: ''
   },
   // Add more mock admins as needed
 ];

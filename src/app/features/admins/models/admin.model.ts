@@ -1,20 +1,20 @@
-export type AdminRole = 'super_admin' | 'admin' | 'manager';
+export type AdminRole = 'SUPER_ADMIN' | 'ADMIN'
 
 export type AdminStatus = 'active' | 'inactive' | 'suspended';
 
 export interface Admin {
-avatar: any;
-  id: number;
+// avatar: any;
+  _id: number;
   name: string;
-  email: string;
+  // email: string;
   phone: string;
   role: AdminRole;
-  address: string;
-  permissions: AdminPermission[];
-  lastLogin: Date;
-  status: AdminStatus;
+  // address: string;
+  // permissions: AdminPermission[];
+  // lastLogin: Date;
+  // status: AdminStatus;
   createdAt: Date;
-  updatedAt: Date;
+  // updatedAt: Date;
 }
 
 

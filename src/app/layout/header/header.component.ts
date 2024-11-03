@@ -1,12 +1,14 @@
 // src/app/layout/header/header.component.ts
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AppState } from '../../state/app.state';
+import { AuthService } from '../../features/auth/services/auth.service';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   @Input() collapsed = false;
   @Output() toggleSidebar = new EventEmitter<void>();
 
@@ -50,11 +52,29 @@ export class HeaderComponent {
     }
   ];
 
+  userName: string = '';
+  userPhone: string = '';
+  userRole: string = '';
+
+  constructor(private appState: AppState,private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.appState.getState$().subscribe(state => {
+      const user = state.user;
+      if (user) {
+        this.userName = user.name;
+        // this.userPhoto = user.photo || '../../assets/images/artisan3.png'; // Default photo if user.photo is undefined
+        this.userRole = user.role;
+        this.userPhone = user.phone;
+      }
+    });
+  }
+
   onToggleSidebar() {
     this.toggleSidebar.emit();
   }
 
-  logout() {
-    // Implement logout logic
+  logout(): void {
+    this.authService.logout();
   }
 }

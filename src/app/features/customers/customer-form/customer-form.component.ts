@@ -3,22 +3,23 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomerService } from '../services/customer.service';
+import { AppService } from '../../../../services/app.service';
 
-interface CustomerFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
+interface CustomerPayload {
+  name: string;
+  // lastName: string;
+  // email: string;
   phone: string;
-  streetAddress: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  customerType: string;
-  preferredContact: string;
-  notes: string;
-  emailMarketing: boolean;
-  smsMarketing: boolean;
-  specialOffers: boolean;
+  address: string;
+  // city: string;
+  // state: string;
+  // zipCode: string;
+  // customerType: string;
+  // preferredContact: string;
+  // notes: string;
+  // emailMarketing: boolean;
+  // smsMarketing: boolean;
+  // specialOffers: boolean;
 }
 
 @Component({
@@ -37,7 +38,8 @@ export class CustomerFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private customerService: CustomerService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private appService: AppService,
   ) {
     // Initialize form in constructor
     this.customerForm = this.initializeForm();
@@ -53,20 +55,20 @@ export class CustomerFormComponent implements OnInit {
 
   private initializeForm(): FormGroup {
     return this.fb.group({
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      // lastName: ['', [Validators.required, Validators.minLength(2)]],
+      // email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s-]+$/)]],
-      streetAddress: [''],
-      city: [''],
-      state: [''],
-      zipCode: ['', Validators.pattern(/^\d{5}(-\d{4})?$/)],
-      customerType: ['regular'],
-      preferredContact: ['email'],
-      notes: [''],
-      emailMarketing: [false],
-      smsMarketing: [false],
-      specialOffers: [false]
+      address: ['', Validators.required],
+      // city: [''],
+      // state: [''],
+      // zipCode: ['', Validators.pattern(/^\d{5}(-\d{4})?$/)],
+      // customerType: ['regular'],
+      // preferredContact: ['email'],
+      // notes: [''],
+      // emailMarketing: [false],
+      // smsMarketing: [false],
+      // specialOffers: [false]
     });
   }
 
@@ -117,29 +119,26 @@ export class CustomerFormComponent implements OnInit {
   onSubmit(): void {
     if (this.customerForm.valid) {
       this.isSubmitting = true;
-      const customerData = this.prepareCustomerData();
-      
-      const request = this.isEditMode
-        ? this.customerService.updateCustomer(this.route.snapshot.params['id'], customerData)
-        : this.customerService.createCustomer(customerData);
+      const payload: CustomerPayload = this.customerForm.value;
 
-      request.subscribe({
-        next: () => {
-          this.snackBar.open(
-            `Customer ${this.isEditMode ? 'updated' : 'created'} successfully`,
-            'Close',
-            { duration: 3000 }
-          );
+      this.appService.addUser(payload).subscribe({
+        next: (response) => {
+          this.snackBar.open('Customer created successfully', 'Close', { 
+            duration: 3000 
+          });
           this.router.navigate(['/customers']);
         },
-        error: (error: unknown) => {
+        error: (error) => {
+          console.error('Error creating customer:', error);
           this.isSubmitting = false;
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
           this.snackBar.open(
-            'Error saving customer data: ' + errorMessage,
-            'Close',
+            error.message || 'Error creating customer', 
+            'Close', 
             { duration: 3000 }
           );
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
     } else {
@@ -147,17 +146,9 @@ export class CustomerFormComponent implements OnInit {
     }
   }
 
-  private prepareCustomerData(): CustomerFormData {
-    return {
-      ...this.customerForm.value,
-      // Add any additional data transformation here
-    };
-  }
-
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
-
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
       }

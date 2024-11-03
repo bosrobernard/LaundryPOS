@@ -57,24 +57,24 @@
 
     <div class="user-menu">
       <button class="user-btn" [matMenuTriggerFor]="profileMenu">
-        <img [src]="currentUser.avatar || '/assets/profile.jpg'"  
+        <!-- <img [src]="currentUser.avatar || '/assets/profile.jpg'"  
              [alt]="currentUser.name"
-             class="user-avatar">
+             class="user-avatar"> -->
         <div class="user-info" *ngIf="!collapsed">
-          <span class="name">{{currentUser.name}}</span>
-          <span class="role">{{currentUser.role}}</span>
+          <span class="name">{{userName}}</span>
+          <span class="role">{{userRole}}</span>
         </div>
         <i class="ri-arrow-down-s-line"></i>
       </button>
 
       <mat-menu #profileMenu="matMenu" class="profile-menu">
         <div class="profile-header">
-          <img [src]="currentUser.avatar || 'assets/profile.jpg'" 
+          <!-- <img [src]="currentUser.avatar || 'assets/profile.jpg'" 
                [alt]="currentUser.name"
-               class="profile-avatar">
+               class="profile-avatar"> -->
           <div class="profile-info">
-            <span class="name">{{currentUser.name}}</span>
-            <span class="email">{{currentUser.email}}</span>
+            <span class="name">{{userName}}</span>
+            <span class="phone">{{userPhone}}</span>
           </div>
         </div>
 

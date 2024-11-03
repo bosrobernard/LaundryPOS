@@ -21,7 +21,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Total Admins</p>
-          <h3 class="stat-value">{{admins.length}}</h3>
+          <h3 class="stat-value">{{getAdminCount()}}</h3>
         </div>
       </mat-card>
 
@@ -35,7 +35,7 @@
         </div>
       </mat-card>
 
-      <mat-card class="stat-card">
+      <!-- <mat-card class="stat-card">
         <div class="stat-icon online">
           <i class="ri-user-follow-line"></i>
         </div>
@@ -43,7 +43,7 @@
           <p class="stat-label">Online Now</p>
           <h3 class="stat-value">{{getOnlineCount()}}</h3>
         </div>
-      </mat-card>
+      </mat-card> -->
     </div>
   </div>
 
@@ -87,16 +87,16 @@
   <div class="admin-grid">
     <mat-card class="admin-card" *ngFor="let admin of filteredAdmins">
       <div class="card-header" [class]="admin.role">
-        <div class="online-status" [class.online]="isOnline(admin)"></div>
+        <!-- <div class="online-status" [class.online]="isOnline(admin)"></div> -->
         <div class="avatar-container">
-          <img [src]="admin.avatar || 'assets/default-avatar.png'" 
+          <img [src]="'assets/default-avatar.png'" 
                [alt]="admin.name"
                class="avatar-image">
         </div>
         <div class="role-badge" [class]="admin.role">
-          <i class="ri-shield-star-line" *ngIf="admin.role === 'super_admin'"></i>
-          <i class="ri-shield-check-line" *ngIf="admin.role === 'admin'"></i>
-          <i class="ri-shield-user-line" *ngIf="admin.role === 'manager'"></i>
+          <i class="ri-shield-star-line" *ngIf="admin.role === 'SUPER_ADMIN'"></i>
+          <i class="ri-shield-check-line" *ngIf="admin.role === 'ADMIN'"></i>
+          <!-- <i class="ri-shield-user-line" *ngIf="admin.role === 'manager'"></i> -->
           {{admin.role.replace('_', ' ') | titlecase}}
         </div>
       </div>
@@ -105,18 +105,18 @@
         <div class="admin-info">
           <h3 class="admin-name">{{admin.name}}</h3>
           <div class="contact-info">
-            <a href="mailto:{{admin.email}}" class="info-item">
+            <!-- <a href="mailto:{{admin.email}}" class="info-item">
               <i class="ri-mail-line"></i>
               {{admin.email}}
-            </a>
+            </a> -->
             <a href="tel:{{admin.phone}}" class="info-item">
               <i class="ri-phone-line"></i>
               {{admin.phone}}
             </a>
-            <span class="info-item">
+            <!-- <span class="info-item">
               <i class="ri-map-pin-line"></i>
               {{admin.address}}
-            </span>
+            </span> -->
           </div>
         </div>
 
@@ -125,14 +125,12 @@
         <div class="permissions-section">
           <h4 class="section-title">
             <i class="ri-lock-password-line"></i>
-            Permissions
+            Role
           </h4>
           <div class="permission-tags">
-            <span *ngFor="let permission of admin.permissions" 
-                  class="permission-tag"
-                  [matTooltip]="getPermissionDescription(permission)">
-              <i [class]="getPermissionIcon(permission)"></i>
-              {{permission.replace('_', ' ') | titlecase}}
+            <span>
+              <!-- <i [class]="getPermissionIcon()"></i> -->
+              {{admin.role}}
             </span>
           </div>
         </div>
@@ -142,7 +140,7 @@
         <div class="activity-section">
           <div class="last-active">
             <i class="ri-time-line"></i>
-            Last Login: {{admin.lastLogin | timeAgo}}
+            Joined: {{admin.createdAt | date}}
           </div>
         </div>
       </mat-card-content>
@@ -167,7 +165,7 @@
           <mat-divider></mat-divider>
           <button mat-menu-item class="delete-action" 
                   (click)="deleteAdmin(admin)"
-                  *ngIf="admin.id !== currentUserId">
+                  *ngIf="admin._id !== currentUserId">
             <i class="ri-delete-bin-line"></i>
             Delete Admin
           </button>

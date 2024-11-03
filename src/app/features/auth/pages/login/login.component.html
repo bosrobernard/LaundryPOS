@@ -10,12 +10,12 @@
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <div class="space-y-4">
               <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="email" type="email" placeholder="Enter your email">
-                <mat-error *ngIf="loginForm.get('email')?.errors?.['required']">
-                  Email is required
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="phone" type="text" placeholder="Enter your phone">
+                <mat-error *ngIf="loginForm.get('phone')?.errors?.['required']">
+                  Phone is required
                 </mat-error>
-                <mat-error *ngIf="loginForm.get('email')?.errors?.['email']">
+                <mat-error *ngIf="loginForm.get('phone')?.errors?.['phone']">
                   Please enter a valid email
                 </mat-error>
               </mat-form-field>
@@ -39,9 +39,9 @@
               </div>
 
               <button mat-raised-button color="primary" class="w-full" type="submit"
-                      [disabled]="loginForm.invalid || isLoading">
-                <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-                <span *ngIf="!isLoading">Sign In</span>
+                      [disabled]="loginForm.invalid || loading">
+                <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+                <span *ngIf="!loading">Sign In</span>
               </button>
             </div>
           </form>

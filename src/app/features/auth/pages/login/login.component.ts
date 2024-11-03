@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { authService } from '../../../../../services/auth.service';
+import { AppState } from '../../../../state/app.state';
 
 @Component({
   selector: 'app-login',
@@ -12,45 +13,65 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
-  isLoading = false;
+  loading = false;
   hidePassword = true;
+  errorMessage: string = '';
+
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private authService: authService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private appState: AppState
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required]],
       password: ['', Validators.required],
       rememberMe: [false]
     });
   }
 
-  ngOnInit() {
-    if (this.authService.currentUserValue) {
-      this.router.navigate(['/']);
-    }
+  ngOnInit() {}
+
+  get formControls() {
+    return this.loginForm.controls;
   }
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      const { email, password } = this.loginForm.value;
-
-      this.authService.login(email, password).subscribe({
-        next: () => {
-          this.router.navigate(['/']);
-        },
-        error: (error) => {
-          this.snackBar.open(error.message || 'Login failed', 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-          this.isLoading = false;
-        }
-      });
+    if (this.loginForm.invalid) {
+      return;
     }
+    this.loading = true;
+
+    const loginData = {
+      phone: this.loginForm.get('phone')?.value,
+      password: this.loginForm.get('password')?.value,
+    };
+
+    this.authService.login(loginData).subscribe({
+      next: () => {
+        // Check if the user is authenticated after login
+        if (this.appState.getState().isAuthenticated) {
+          this.router.navigate(['dashboard']);
+
+        } else {
+          // Handle authentication failure
+          this.errorMessage =
+            'Authentication failed. Please check your credentials.';
+          console.error('Login failed: Authentication failed');
+          this.loading = false;
+
+        }
+      },
+      error: (err) => {
+        // Handle other errors
+        this.errorMessage =
+          err;
+        console.error('Login failed', err);
+        this.loading = false;
+
+      },
+    });
   }
 }

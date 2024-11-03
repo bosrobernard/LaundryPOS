@@ -18,12 +18,12 @@ adminForm: FormGroup;
   ) {
     this.adminForm = this.fb.group({
       name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      // email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
       role: ['admin', Validators.required],
-      address: ['', Validators.required],
-      permissions: [[]],
-      avatar: ['']
+      // address: ['', Validators.required],
+      // permissions: [[]],
+      // avatar: ['']
     });
 
     if (data.mode === 'edit' && data.admin) {

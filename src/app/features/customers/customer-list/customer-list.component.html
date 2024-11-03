@@ -82,14 +82,14 @@
           type="text" 
           placeholder="Search customers..." 
           [(ngModel)]="searchQuery"
-          (ngModelChange)="filterCustomers()"
+          
         >
       </div>
 
       <div class="filters-group">
         <mat-form-field appearance="outline">
           <mat-label>Status</mat-label>
-          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="filterCustomers()">
+          <mat-select [(ngModel)]="selectedStatus" >
             <mat-option value="all">All Customers</mat-option>
             <mat-option value="active">Active</mat-option>
             <mat-option value="inactive">Inactive</mat-option>
@@ -98,7 +98,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Sort By</mat-label>
-          <mat-select [(ngModel)]="sortBy" (selectionChange)="filterCustomers()">
+          <mat-select [(ngModel)]="sortBy" >
             <mat-option value="name">Name</mat-option>
             <mat-option value="date">Join Date</mat-option>
             <mat-option value="orders">Orders</mat-option>
@@ -172,71 +172,29 @@
       </ng-container>
 
       <!-- Customer Details Column -->
-      <ng-container matColumnDef="customer">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer </th>
-        <td mat-cell *matCellDef="let customer">
-          <div class="customer-info">
-            <img [src]="customer.avatar || 'assets/default-avatar.png'" 
-                 [alt]="customer.name"
-                 class="customer-avatar">
-            <div class="customer-details">
-              <span class="customer-name">{{customer.name}}</span>
-              <span class="customer-email">{{customer.email}}</span>
-            </div>
-          </div>
-        </td>
-      </ng-container>
+      <!-- Name Column -->
+<ng-container matColumnDef="name">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+  <td mat-cell *matCellDef="let customer"> {{customer.name}} </td>
+</ng-container>
 
-      <!-- Contact Column -->
-      <ng-container matColumnDef="contact">
-        <th mat-header-cell *matHeaderCellDef> Contact </th>
-        <td mat-cell *matCellDef="let customer">
-          <div class="contact-info">
-            <span class="phone">
-              <i class="ri-phone-line"></i>
-              {{customer.phone}}
-            </span>
-            <span class="address">
-              <i class="ri-map-pin-line"></i>
-              {{customer.address}}
-            </span>
-          </div>
-        </td>
-      </ng-container>
+<!-- Phone Column -->
+<ng-container matColumnDef="phone">
+  <th mat-header-cell *matHeaderCellDef> Phone </th>
+  <td mat-cell *matCellDef="let customer"> {{customer.phone}} </td>
+</ng-container>
 
-      <!-- Orders Column -->
-      <ng-container matColumnDef="orders">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Orders </th>
-        <td mat-cell *matCellDef="let customer">
-          <div class="orders-info">
-            <span class="order-count">{{customer.totalOrders}} orders</span>
-            <span class="order-value">${{customer.totalSpent | number:'1.2-2'}}</span>
-          </div>
-        </td>
-      </ng-container>
+<!-- Address Column -->
+<ng-container matColumnDef="address">
+  <th mat-header-cell *matHeaderCellDef> Address </th>
+  <td mat-cell *matCellDef="let customer"> {{customer.address}} </td>
+</ng-container>
 
-      <!-- Status Column -->
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-        <td mat-cell *matCellDef="let customer">
-          <span class="status-badge" [class]="customer.status">
-            <i class="ri-checkbox-circle-line" *ngIf="customer.status === 'active'"></i>
-            <i class="ri-close-circle-line" *ngIf="customer.status === 'inactive'"></i>
-            {{customer.status}}
-          </span>
-        </td>
-      </ng-container>
-
-      <!-- Join Date Column -->
-      <ng-container matColumnDef="joinDate">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Joined </th>
-        <td mat-cell *matCellDef="let customer">
-          <div class="date-info">
-            <span class="date">{{customer.joinDate | date}}</span>
-            <small class="time-ago">{{customer.joinDate | timeAgo}}</small>
-          </div>
-        </td>
-      </ng-container>
+<!-- Created Date Column -->
+<ng-container matColumnDef="createdAt">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> Joined </th>
+  <td mat-cell *matCellDef="let customer"> {{customer.createdAt | date}} </td>
+</ng-container>
 
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
@@ -246,15 +204,15 @@
             <i class="ri-more-2-fill"></i>
           </button>
           <mat-menu #menu="matMenu" class="actions-menu">
-            <button mat-menu-item (click)="viewCustomer(customer)">
+            <button mat-menu-item >
               <i class="ri-eye-line"></i>
               <span>View Profile</span>
             </button>
-            <button mat-menu-item (click)="editCustomer(customer)">
+            <button mat-menu-item >
               <i class="ri-edit-line"></i>
               <span>Edit Details</span>
             </button>
-            <button mat-menu-item (click)="viewOrders(customer)">
+            <button mat-menu-item >
               <i class="ri-shopping-bag-line"></i>
               <span>View Orders</span>
             </button>
