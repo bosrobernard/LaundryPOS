@@ -82,7 +82,6 @@
                 </mat-card-content>
             </mat-card>
 
-            <!-- Order Items -->
             <mat-card class="form-section">
                 <mat-card-header>
                     <mat-card-title>
@@ -96,62 +95,6 @@
                 </mat-card-header>
                 <mat-card-content>
                     <div class="order-items" formArrayName="items">
-                        <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i"
-                            class="order-item">
-                            <div class="item-content">
-                                <h4 class="custom-label">Service:</h4>
-                                <mat-form-field appearance="outline">
-                                    <!-- <mat-label>Service</mat-label> -->
-                                    <mat-select formControlName="service">
-                                        <mat-option *ngFor="let service of services" [value]="service.id">
-                                            <div class="service-option">
-                                                <i [class]="service.icon"></i>
-                                                <span>{{service.name}}</span>
-                                                <small>${{service.price}}</small>
-                                            </div>
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-
-                                <div>
-                                    <h4 class="custom-label">Quantity:</h4>
-                                <mat-form-field appearance="outline">
-                                    <!-- <mat-label>Quantity</mat-label> -->
-                                    <input matInput type="number" formControlName="quantity" min="1"
-                                        (input)="updateItemTotal(i)">
-                                </mat-form-field>
-                                </div>
-
-                               <div>
-                                <h4 class="custom-label">Price:</h4>
-                                <mat-form-field appearance="outline">
-                                    <!-- <mat-label>Price</mat-label> -->
-                                    <input matInput type="number" formControlName="price" (input)="updateItemTotal(i)">
-                                    <span matPrefix>$&nbsp;</span>
-                                </mat-form-field>
-                               </div>
-
-                                <h4 class="custom-label">Total:</h4>
-                                <mat-form-field appearance="outline">
-                                    <!-- <mat-label>Total</mat-label> -->
-                                    <input matInput type="number" formControlName="total" readonly>
-                                    <span matPrefix>$&nbsp;</span>
-                                </mat-form-field>
-
-                                <button mat-icon-button color="warn" (click)="removeOrderItem(i)" class="remove-item">
-                                    <i class="ri-delete-bin-line"></i>
-                                </button>
-                            </div>
-
-                            <h4 class="custom-label">Notes:</h4>
-                            <mat-form-field appearance="outline" class="full-width">
-                                <!-- <mat-label>Notes</mat-label> -->
-                                <textarea matInput formControlName="notes" rows="2"
-                                    placeholder="Add any special instructions or notes for this item">
-                  </textarea>
-                            </mat-form-field>
-                        </div>
-
                         <!-- Empty State -->
                         <div class="empty-items" *ngIf="orderItems.length === 0">
                             <i class="ri-shopping-basket-line"></i>
@@ -160,22 +103,138 @@
                                 Add First Item
                             </button>
                         </div>
+
+                        <!-- Order Items -->
+                        <div *ngFor="let item of orderItems.controls; let i = index" [formGroupName]="i"
+                            class="order-item">
+                            <div class="order-item-grid">
+                                <!-- First Column -->
+                                <div class="order-item-column">
+                                    <div class="form-field">
+                                        <label for="service-{{i}}">Service:</label>
+                                        <mat-form-field appearance="outline">
+                                            <mat-select formControlName="service" id="service-{{i}}">
+                                                <mat-option *ngFor="let service of services" [value]="service.id">
+                                                    <div class="service-option">
+                                                        <i [class]="service.icon"></i>
+                                                        <span>{{service.name}}</span>
+                                                        <small>${{service.price}}</small>
+                                                    </div>
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="quantity-{{i}}">Quantity:</label>
+                                        <mat-form-field appearance="outline">
+                                            <input matInput type="number" formControlName="quantity" id="quantity-{{i}}"
+                                                min="1" (input)="updateItemTotal(i)">
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <!-- Second Column -->
+                                <div class="order-item-column">
+                                    <div class="form-field">
+                                        <label for="price-{{i}}">Price:</label>
+                                        <mat-form-field appearance="outline">
+                                            <input matInput type="number" formControlName="price" id="price-{{i}}"
+                                                (input)="updateItemTotal(i)">
+                                            <span matPrefix>$&nbsp;</span>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="total-{{i}}">Total:</label>
+                                        <mat-form-field appearance="outline">
+                                            <input matInput type="number" formControlName="total" id="total-{{i}}"
+                                                readonly>
+                                            <span matPrefix>$&nbsp;</span>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- Notes Field (Full Width) -->
+                            <div class="form-field notes-field">
+                                <label for="notes-{{i}}">Notes:</label>
+                                <mat-form-field appearance="outline">
+                                    <textarea matInput formControlName="notes" id="notes-{{i}}" rows="2"
+                                        placeholder="Add any special instructions or notes for this item"></textarea>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="item-actions">
+                                <button mat-icon-button>
+
+                                </button>
+                                <!-- <button mat-icon-button color="warn" (click)="removeOrderItem(i)"
+                                    matTooltip="Remove Item" type="button">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button> -->
+                            </div>
+
+                            <div style="display: flex;align-self: flex-start;width: 10rem;">
+                                <button color="primary" type="button" style="background: #3f51b5; color: white;padding: 1.2rem 2rem;"
+                                    matTooltip="Add to Cart" (click)="addToCart(i)">Add to cart</button>
+                                <i class="ri-shopping-cart-add-line"></i>
+                            </div>
+
+                        </div>
+
+
                     </div>
 
-                    <!-- Order Summary -->
-                    <div class="order-summary" *ngIf="orderItems.length > 0">
-                        <div class="summary-row">
-                            <span>Subtotal</span>
-                            <span>${{getSubtotal() | number:'1.2-2'}}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Tax ({{taxRate}}%)</span>
-                            <span>${{getTax() | number:'1.2-2'}}</span>
-                        </div>
-                        <div class="summary-row total">
-                            <span>Total</span>
-                            <span>${{getTotal() | number:'1.2-2'}}</span>
-                        </div>
+                    <!-- Cart Table -->
+                    <div class="cart-items" *ngIf="cartItems.length > 0">
+                        <h3>Cart Items</h3>
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of cartItems; let i = index">
+                                    <td>{{item.service}}</td>
+                                    <td>{{item.quantity}}</td>
+                                    <td>${{item.price}}</td>
+                                    <td>${{item.total}}</td>
+                                    <td>{{item.notes}}</td>
+                                    <td>
+                                        <button mat-icon-button color="warn" (click)="removeFromCart(i)" type="button">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot style="padding-top: 3rem;">
+                                <tr>
+                                    <td colspan="3" class="text-right">Subtotal:</td>
+                                    <td>${{getCartTotal() | number:'1.2-2'}}</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right">Tax ({{taxRate}}%):</td>
+                                    <td>${{getCartTax() | number:'1.2-2'}}</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="3" class="text-right">Total:</td>
+                                    <td>${{getCartGrandTotal() | number:'1.2-2'}}</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </mat-card-content>
             </mat-card>
@@ -189,61 +248,68 @@
                     </mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
-                    <div class="form-grid">
-                        <h4 class="custom-label">Delivery/Pickup Date:</h4>
-                        <mat-form-field appearance="outline">
-                            <!-- <mat-label>Delivery Date</mat-label> -->
-                            <input matInput [matDatepicker]="picker" formControlName="deliveryDate">
-                            <mat-datepicker-toggle matSuffix [for]="picker">
-                            </mat-datepicker-toggle>
-                            <mat-datepicker #picker></mat-datepicker>
-                        </mat-form-field>
-
-                        <h4 class="custom-label">Time slot:</h4>
-                        <mat-form-field appearance="outline">
-                            <!-- <mat-label>Time Slot</mat-label> -->
-                            <mat-select formControlName="timeSlot">
-                                <mat-option *ngFor="let slot of timeSlots" [value]="slot.value">
-                                    {{slot.label}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-
-                        <div class="address-section" formGroupName="deliveryAddress">
+                    <div class="form-grid two-columns">
+                        <div class="form-field">
+                            <label>Delivery/Pickup Date:</label>
+                            <mat-form-field appearance="outline">
+                                <input matInput [matDatepicker]="picker" formControlName="deliveryDate">
+                                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+            
+                        <div class="form-field">
+                            <label>Time slot:</label>
+                            <mat-form-field appearance="outline">
+                                <mat-select formControlName="timeSlot">
+                                    <mat-option *ngFor="let slot of timeSlots" [value]="slot.value">
+                                        {{slot.label}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+            
+                        <div class="address-section full-width" formGroupName="deliveryAddress">
                             <mat-checkbox formControlName="sameAsCustomer" (change)="onSameAddressChange($event)">
                                 Same as customer address
                             </mat-checkbox>
-
+            
                             <ng-container *ngIf="!orderForm?.get('deliveryAddress.sameAsCustomer')?.value">
-
-                                <h4 class="custom-label">Street Address:</h4>
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <!-- <mat-label>Street Address</mat-label> -->
-                                    <input matInput formControlName="street">
-                                </mat-form-field>
-
-                                <h4 class="custom-label">City:</h4>
-                                <mat-form-field appearance="outline">
-                                    <!-- <mat-label>City</mat-label> -->
-                                    <input matInput formControlName="city">
-                                </mat-form-field>
-
-                                <h4 class="custom-label">State:</h4>
-                                <mat-form-field appearance="outline">
-                                    <!-- <mat-label>State</mat-label> -->
-                                    <input matInput formControlName="state">
-                                </mat-form-field>
-
-                                <h4 class="custom-label">ZIP Code:</h4>
-                                <mat-form-field appearance="outline">
-                                    <!-- <mat-label>ZIP Code</mat-label> -->
-                                    <input matInput formControlName="zipCode">
-                                </mat-form-field>
+                                <div class="address-grid">
+                                    <div class="form-field">
+                                        <label>Street Address:</label>
+                                        <mat-form-field appearance="outline">
+                                            <input matInput formControlName="street">
+                                        </mat-form-field>
+                                    </div>
+            
+                                    <div class="form-field">
+                                        <label>City:</label>
+                                        <mat-form-field appearance="outline">
+                                            <input matInput formControlName="city">
+                                        </mat-form-field>
+                                    </div>
+            
+                                    <div class="form-field">
+                                        <label>State:</label>
+                                        <mat-form-field appearance="outline">
+                                            <input matInput formControlName="state">
+                                        </mat-form-field>
+                                    </div>
+            
+                                    <div class="form-field">
+                                        <label>ZIP Code:</label>
+                                        <mat-form-field appearance="outline">
+                                            <input matInput formControlName="zipCode">
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                             </ng-container>
                         </div>
                     </div>
                 </mat-card-content>
             </mat-card>
+            
 
             <!-- Additional Information -->
             <mat-card class="form-section">
@@ -255,48 +321,56 @@
                 </mat-card-header>
                 <mat-card-content>
                     <div class="form-grid">
-                        <h4 class="custom-label">Payment Method:</h4>
-                        <mat-form-field appearance="outline">
-                            <!-- <mat-label>Payment Method</mat-label> -->
-                            <mat-select formControlName="paymentMethod">
-                                <mat-option value="cash">Cash on Delivery</mat-option>
-                                <mat-option value="card">Credit/Debit Card</mat-option>
-                                <mat-option value="online">Online Payment</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-
-                        <h4 class="custom-label">Priority levels:</h4>
-                        <mat-form-field appearance="outline">
-                            <!-- <mat-label>Priority Level</mat-label> -->
-                            <mat-select formControlName="priority">
-                                <mat-option value="normal">Normal</mat-option>
-                                <mat-option value="rush">Rush</mat-option>
-                                <mat-option value="express">Express</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-
-                        <h4 class="custom-label">Special Instructions:</h4>
-                        <mat-form-field appearance="outline" class="full-width">
-                            <!-- <mat-label>Special Instructions</mat-label> -->
-                            <textarea matInput formControlName="instructions" rows="4">
-                </textarea>
-                        </mat-form-field>
+                        <div class="two-columns">
+                            <div class="form-field">
+                                <label>Payment Method:</label>
+                                <mat-form-field appearance="outline">
+                                    <mat-select formControlName="paymentMethod">
+                                        <mat-option value="cash">Cash on Delivery</mat-option>
+                                        <mat-option value="card">Credit/Debit Card</mat-option>
+                                        <mat-option value="online">Online Payment</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+            
+                            <div class="form-field">
+                                <label>Priority levels:</label>
+                                <mat-form-field appearance="outline">
+                                    <mat-select formControlName="priority">
+                                        <mat-option value="normal">Normal</mat-option>
+                                        <mat-option value="rush">Rush</mat-option>
+                                        <mat-option value="express">Express</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+            
+                        <div class="form-field full-width">
+                            <label>Special Instructions:</label>
+                            <mat-form-field appearance="outline">
+                                <textarea matInput formControlName="instructions" rows="4"></textarea>
+                            </mat-form-field>
+                        </div>
                     </div>
                 </mat-card-content>
             </mat-card>
 
             <!-- Form Actions -->
-            <div class="form-actions">
-                <button mat-stroked-button type="button" (click)="goBack()">
-                    Cancel
-                </button>
-                <button mat-raised-button color="primary" type="submit" [disabled]="orderForm.invalid || isSubmitting">
-                    <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
-                    <span *ngIf="!isSubmitting">
-                        {{isEditMode ? 'Update Order' : 'Create Order'}}
-                    </span>
-                </button>
-            </div>
+         <!-- Form Actions -->
+<div class="form-actions">
+    <button mat-stroked-button type="button" (click)="goBack()">
+        Cancel
+    </button>
+    <button mat-raised-button color="primary" type="submit" 
+        [disabled]="orderForm.invalid || isSubmitting || cartItems.length === 0">
+        <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
+        <span *ngIf="!isSubmitting">
+            {{isEditMode ? 'Update Order' : 'Create Order'}}
+        </span>
+    </button>
+</div>
+
+
         </form>
     </div>
 </div>
