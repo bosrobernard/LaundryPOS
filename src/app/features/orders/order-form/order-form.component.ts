@@ -1,12 +1,20 @@
 /// src/app/features/orders/pages/order-form/order-form.component.ts
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, FormControl, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { OrderService } from '../services/order.service';
 import { Observable, debounceTime, of, startWith, switchMap } from 'rxjs';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+
+interface OrderItem {
+  service: string;
+  quantity: number;
+  price: number;
+  total: number;
+  notes: string;
+}
 
 
 @Component({
@@ -25,6 +33,7 @@ export class OrderFormComponent implements OnInit {
   isEditMode = false;
   isSubmitting = false;
   taxRate = 8.5;
+  cartItems: OrderItem[] = [];
 
   orderStatuses = ['Pending', 'Processing', 'Completed', 'Delivered'];
   currentStatus = 'Pending';
@@ -70,34 +79,44 @@ export class OrderFormComponent implements OnInit {
   ];
 
  
-    constructor(
-      private fb: FormBuilder,
-      private route: ActivatedRoute,
-      private router: Router,
-      private orderService: OrderService,
-      private snackBar: MatSnackBar
-    ){
-    // Initialize form in constructor
+  private conditionalValidator(condition: () => boolean): ValidatorFn {
+    return (formControl: AbstractControl): ValidationErrors | null => {
+        if (condition()) {
+            return Validators.required(formControl);
+        }
+        return null;
+    }
+}
+
+
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private orderService: OrderService,
+    private snackBar: MatSnackBar
+) {
     this.orderForm = this.fb.group({
-      customerId: ['', Validators.required],
-      items: this.fb.array([], Validators.required),
-      deliveryDate: ['', Validators.required],
-      timeSlot: ['', Validators.required],
-      deliveryAddress: this.fb.group({
-        sameAsCustomer: [true],
-        street: [''],
-        city: [''],
-        state: [''],
-        zipCode: ['']
-      }),
-      paymentMethod: ['cash', Validators.required],
-      priority: ['normal', Validators.required],
-      instructions: [''],
-      status: ['pending']
+        customerId: ['', Validators.required],
+        items: this.fb.array([]), // Remove Validators.required since items will be in cartItems
+        deliveryDate: ['', Validators.required],
+        timeSlot: ['', Validators.required],
+        deliveryAddress: this.fb.group({
+            sameAsCustomer: [true],
+            street: ['', this.conditionalValidator(() => !this.orderForm?.get('deliveryAddress.sameAsCustomer')?.value)],
+            city: ['', this.conditionalValidator(() => !this.orderForm?.get('deliveryAddress.sameAsCustomer')?.value)],
+            state: ['', this.conditionalValidator(() => !this.orderForm?.get('deliveryAddress.sameAsCustomer')?.value)],
+            zipCode: ['', this.conditionalValidator(() => !this.orderForm?.get('deliveryAddress.sameAsCustomer')?.value)]
+        }),
+        paymentMethod: ['cash', Validators.required],
+        priority: ['normal', Validators.required],
+        instructions: [''], // Optional
+        status: ['pending']
     });
 
     this.setupCustomerSearch();
-  }
+}
+
 
 
   ngOnInit() {
@@ -148,17 +167,7 @@ export class OrderFormComponent implements OnInit {
     return this.orderForm.get('items') as FormArray;  // Remove the optional chaining
   }
 
-  addOrderItem() {
-    const itemForm = this.fb.group({
-      service: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      price: [{ value: 0, disabled: true }],
-      total: [{ value: 0, disabled: true }],
-      notes: ['']
-    });
-
-    this.orderItems.push(itemForm);
-  }
+ 
 
   removeOrderItem(index: number) {
     this.orderItems.removeAt(index);
@@ -274,5 +283,58 @@ export class OrderFormComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/orders']);
+  }
+
+  addOrderItem() {
+    const itemForm = this.fb.group({
+      service: ['', Validators.required],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      price: [0, [Validators.required, Validators.min(0)]],
+      total: [0],
+      notes: ['']
+    });
+
+    this.orderItems.push(itemForm);
+  }
+
+  addToCart(index: number) {
+    const item = this.orderItems.at(index);
+    if (item.valid) {
+      const itemValue = item.value;
+      const service = this.services.find(s => s.id === itemValue.service);
+      
+      const cartItem: OrderItem = {
+        service: service?.name || '',
+        quantity: itemValue.quantity,
+        price: itemValue.price,
+        total: itemValue.total,
+        notes: itemValue.notes
+      };
+
+      this.cartItems.push(cartItem);
+      this.orderItems.removeAt(index);
+      this.addOrderItem(); // Add new empty form
+      
+      this.snackBar.open('Item added to cart', 'Close', { duration: 2000 });
+    } else {
+      this.snackBar.open('Please fill all required fields', 'Close', { duration: 2000 });
+    }
+  }
+
+
+  removeFromCart(index: number) {
+    this.cartItems.splice(index, 1);
+  }
+
+  getCartTotal(): number {
+    return this.cartItems.reduce((sum, item) => sum + item.total, 0);
+  }
+
+  getCartTax(): number {
+    return this.getCartTotal() * (this.taxRate / 100);
+  }
+
+  getCartGrandTotal(): number {
+    return this.getCartTotal() + this.getCartTax();
   }
 }
