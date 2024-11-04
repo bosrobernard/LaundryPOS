@@ -1,8 +1,34 @@
-// src/app/features/payments/payment-list/payment-list.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { PaymentService } from '../services/payment.service';
-import { Payment } from '../models/payment.model';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { AppService } from '../../../../services/app.service';
+
+interface Customer {
+  _id: string;
+  name: string;
+  phone: string;
+  address: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Order {
+  _id: string;
+  orderNumber: string;
+  customer: Customer;
+  orderDate: string;
+  description: string;
+  quantity: number;
+  price: number;
+  amount: number;
+  receivedBy: string;
+  invoiceNumber: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Component({
   selector: 'app-payment-list',
@@ -10,75 +36,83 @@ import { Payment } from '../models/payment.model';
   styleUrls: ['./payment-list.component.scss']
 })
 export class PaymentListComponent implements OnInit {
-  payments: Payment[] = [];
-  filteredPayments: Payment[] = [];
-  selectedMethod: 'all' | 'cash' | 'card' | 'online' = 'all';
-  totalRevenue: number = 0;
-  todaysPayments: number = 0;
+  orders: Order[] = [];
+  dataSource: MatTableDataSource<Order>;
   dateRange: FormGroup;
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  
+  displayedColumns: string[] = [
+    'orderNumber',
+    'customer',
+    'description',
+    'amount',
+    'status',
+    'date'
+  ];
+
+  stats = {
+    totalRevenue: 0,
+    todaysPayments: 0,
+    totalTransactions: 0,
+    successfulTransactions: 0
+  };
+
   constructor(
-    // private paymentService: PaymentService,
+    private appService: AppService,
     private fb: FormBuilder
   ) {
+    this.dataSource = new MatTableDataSource<Order>();
     this.dateRange = this.fb.group({
       start: [null],
       end: [null]
     });
-
-    // Subscribe to date range changes
-    this.dateRange.valueChanges.subscribe(() => {
-      this.filterPayments();
-    });
   }
 
   ngOnInit() {
-    // this.loadPayments();
+    this.loadOrders();
   }
 
-  // loadPayments() {
-  //   this.paymentService.getPayments().subscribe(payments => {
-  //     this.payments = payments;
-  //     this.calculateStats();
-  //     this.filterPayments();
-  //   });
-  // }
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  loadOrders() {
+    this.appService.getOrders().subscribe({
+      next: (orders: Order[]) => {
+        console.log('Orders loaded:', orders);
+        this.orders = orders;
+        this.dataSource.data = orders;
+        this.calculateStats();
+      },
+      error: (error) => {
+        console.error('Error loading orders:', error);
+      }
+    });
+  }
 
   calculateStats() {
-    // Calculate total revenue
-    this.totalRevenue = this.payments
-      .filter(p => p.status === 'completed')
-      .reduce((sum, p) => sum + p.amount, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    // Calculate today's payments
-    const today = new Date().setHours(0, 0, 0, 0);
-    this.todaysPayments = this.payments
-      .filter(p => {
-        const paymentDate = new Date(p.createdAt).setHours(0, 0, 0, 0);
-        return paymentDate === today && p.status === 'completed';
-      })
-      .reduce((sum, p) => sum + p.amount, 0);
-  }
+    this.stats = this.orders.reduce((acc, order) => {
+      acc.totalRevenue += order.amount;
+      acc.totalTransactions++;
 
-  filterPayments() {
-    let filtered = [...this.payments];
+      const orderDate = new Date(order.orderDate);
+      orderDate.setHours(0, 0, 0, 0);
+      if (orderDate.getTime() === today.getTime()) {
+        acc.todaysPayments += order.amount;
+      }
 
-    // Filter by payment method
-    if (this.selectedMethod !== 'all') {
-      filtered = filtered.filter(p => p.paymentMethod === this.selectedMethod);
-    }
-
-    // Filter by date range
-    const startDate = this.dateRange.get('start')?.value;
-    const endDate = this.dateRange.get('end')?.value;
-
-    if (startDate && endDate) {
-      filtered = filtered.filter(payment => {
-        const paymentDate = new Date(payment.createdAt);
-        return paymentDate >= startDate && paymentDate <= endDate;
-      });
-    }
-
-    this.filteredPayments = filtered;
+      return acc;
+    }, {
+      totalRevenue: 0,
+      todaysPayments: 0,
+      totalTransactions: 0,
+      successfulTransactions: 0
+    });
   }
 }

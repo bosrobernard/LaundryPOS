@@ -238,25 +238,14 @@ overflow: hidden;
 }
 
 .orders-table {
-  width: 100%;
-
-  .mat-header-cell {
-    background: #f8fafc;
-    color: #64748b;
-    font-weight: 600;
-    font-size: 12px;
-    padding: 12px 16px;
-  }
-
-  .mat-cell {
-    padding: 12px 16px;
-    font-size: 14px;
-    color: #1e293b;
-  }
-
-  .order-id {
+  .order-number {
     font-weight: 500;
-    color: var(--primary-color);
+    
+    .invoice-number {
+      display: block;
+      color: #666;
+      font-size: 0.8em;
+    }
   }
 
   .customer-info {
@@ -264,46 +253,31 @@ overflow: hidden;
     align-items: center;
     gap: 12px;
 
-    .customer-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
     .customer-details {
+      display: flex;
+      flex-direction: column;
+
       .customer-name {
-        display: block;
         font-weight: 500;
-        color: #1e293b;
       }
 
-      .customer-email {
-        display: block;
-        font-size: 12px;
-        color: #64748b;
+      .customer-phone {
+        color: #666;
+        font-size: 0.8em;
       }
-    }
-  }
-
-  .items-btn {
-    color: #64748b;
-    font-size: 14px;
-
-    i {
-      font-size: 18px;
-      vertical-align: middle;
-    }
-
-    &:hover {
-      color: var(--primary-color);
     }
   }
 
   .amount-cell {
     .amount {
       font-weight: 500;
-      color: #16a34a;
+      color: #2e7d32;
+    }
+
+    .price {
+      display: block;
+      color: #666;
+      font-size: 0.8em;
     }
   }
 
@@ -312,32 +286,23 @@ overflow: hidden;
     align-items: center;
     gap: 4px;
     padding: 4px 8px;
-    border-radius: 9999px;
-    font-size: 12px;
+    border-radius: 4px;
+    font-size: 0.85em;
     font-weight: 500;
 
-    i {
-      font-size: 14px;
-    }
-
     &.pending {
-      background: #fff7ed;
-      color: #c2410c;
+      background-color: #fff3e0;
+      color: #e65100;
     }
 
     &.processing {
-      background: #eff6ff;
-      color: #1d4ed8;
+      background-color: #e3f2fd;
+      color: #1565c0;
     }
 
     &.completed {
-      background: #f0fdf4;
-      color: #15803d;
-    }
-
-    &.delivered {
-      background: #f8fafc;
-      color: #1e293b;
+      background-color: #e8f5e9;
+      color: #2e7d32;
     }
   }
 
@@ -345,8 +310,13 @@ overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    font-size: 12px;
-    color: #64748b;
+    font-size: 0.85em;
+
+    i {
+      margin-right: 4px;
+      font-size: 1.1em;
+    }
+  }
 
     span {
       display: flex;
@@ -401,7 +371,7 @@ overflow: hidden;
 mat-paginator {
   border-top: 1px solid #e2e8f0;
 }
-}
+
 
 ::ng-deep {
 .actions-menu {

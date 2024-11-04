@@ -1,70 +1,103 @@
-<div class="table-container">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold">Payments</h2>
-      <div class="stats flex gap-4">
-        <div class="stat-card">
-          <span class="label">Total Revenue</span>
-          <span class="value">${{totalRevenue}}</span>
-        </div>
-        <div class="stat-card">
-          <span class="label">Today's Payments</span>
-          <span class="value">${{todaysPayments}}</span>
-        </div>
+<div class="payments-container">
+  <!-- Stats Cards -->
+  <div class="stats-cards">
+    <mat-card class="stat-card">
+      <div class="stat-icon total">
+        <i class="ri-money-dollar-circle-line"></i>
       </div>
-    </div>
+      <div class="stat-content">
+        <p class="stat-label">Total Revenue</p>
+        <h3 class="stat-value">₵{{stats.totalRevenue | number:'1.2-2'}}</h3>
+      </div>
+    </mat-card>
 
-    <div class="filters mb-4 flex gap-4">
-      <mat-form-field>
-        <mat-label>Date Range</mat-label>
-        <mat-date-range-input [formGroup]="dateRange" [rangePicker]="picker">
-          <input matStartDate formControlName="start" placeholder="Start date">
-          <input matEndDate formControlName="end" placeholder="End date">
-        </mat-date-range-input>
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-date-range-picker #picker></mat-date-range-picker>
-      </mat-form-field>
+    <mat-card class="stat-card">
+      <div class="stat-icon today">
+        <i class="ri-calendar-check-line"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Today's Orders</p>
+        <h3 class="stat-value">₵{{stats.todaysPayments | number:'1.2-2'}}</h3>
+      </div>
+    </mat-card>
 
-      <mat-form-field>
-        <mat-label>Payment Method</mat-label>
-        <mat-select [(ngModel)]="selectedMethod" (selectionChange)="filterPayments()">
-          <mat-option value="all">All</mat-option>
-          <mat-option value="cash">Cash</mat-option>
-          <mat-option value="card">Card</mat-option>
-          <mat-option value="online">Online</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <table class="min-w-full">
-      <thead>
-        <tr>
-          <th>Transaction ID</th>
-          <th>Customer</th>
-          <th>Order ID</th>
-          <th>Amount</th>
-          <th>Method</th>
-          <th>Status</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let payment of filteredPayments">
-          <td>#{{payment.transactionId || payment.id}}</td>
-          <td>{{payment.customerName}}</td>
-          <td>#{{payment.orderId}}</td>
-          <td>${{payment.amount}}</td>
-          <td>
-            <span class="method-badge" [class]="payment.paymentMethod">
-              {{payment.paymentMethod}}
-            </span>
-          </td>
-          <td>
-            <span class="status-badge" [class]="payment.status">
-              {{payment.status}}
-            </span>
-          </td>
-          <td>{{payment.createdAt | date:'medium'}}</td>
-        </tr>
-      </tbody>
-    </table>
+    <mat-card class="stat-card">
+      <div class="stat-icon count">
+        <i class="ri-shopping-bag-line"></i>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Total Orders</p>
+        <h3 class="stat-value">{{stats.totalTransactions}}</h3>
+      </div>
+    </mat-card>
   </div>
+
+  <!-- Table Card -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <table mat-table [dataSource]="dataSource" matSort class="orders-table">
+        <!-- Order Number Column -->
+        <ng-container matColumnDef="orderNumber">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Order #</th>
+          <td mat-cell *matCellDef="let order">
+            {{order.orderNumber}}
+            <small class="invoice-number">{{order.invoiceNumber}}</small>
+          </td>
+        </ng-container>
+
+        <!-- Customer Column -->
+        <ng-container matColumnDef="customer">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+          <td mat-cell *matCellDef="let order">
+            <div class="customer-info">
+              <span class="name">{{order.customer.name}}</span>
+              <small class="phone">{{order.customer.phone}}</small>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let order">{{order.description}}</td>
+        </ng-container>
+
+        <!-- Amount Column -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+          <td mat-cell *matCellDef="let order">
+            <div class="amount-info">
+              <span class="amount">₵{{order.amount | number:'1.2-2'}}</span>
+              <small class="details">
+                {{order.quantity}} x ₵{{order.price | number:'1.2-2'}}
+              </small>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let order">
+            <span class="status-badge" [class]="order.status">
+              {{order.status | titlecase}}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+          <td mat-cell *matCellDef="let order">
+            {{order.createdAt | date:'short'}}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of orders"></mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

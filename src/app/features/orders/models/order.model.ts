@@ -11,15 +11,27 @@ export interface OrderItem {
   export type OrderStatus = 'pending' | 'processing' | 'completed' | 'delivered';
   
 
-    export interface Order {
-      id: number;
-      customerId: number;
-      customerName: string;
-      customerEmail?: string;  
-      customerAvatar?: string; 
-      items: OrderItem[];
-      totalAmount: number;
-      status: OrderStatus;
-      createdAt: Date;
-      deliveryDate: Date;
+  export interface Customer {
+    _id: string;
+    name: string;
+    phone: string;
+    address: string;
+    createdAt: string;
+    updatedAt: string;
+  }
+  
+  export interface Order {
+    _id: string;
+    orderNumber: string;
+    customer: Customer;
+    orderDate: string;
+    description: string;
+    quantity: number;
+    price: number;
+    amount: number;
+    receivedBy: string;
+    invoiceNumber: string;
+    status: 'pending' | 'processing' | 'completed';
+    createdAt: string;
+    updatedAt: string;
   }

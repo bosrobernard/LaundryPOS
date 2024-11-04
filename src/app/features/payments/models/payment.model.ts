@@ -2,16 +2,29 @@
 export type PaymentMethod = 'cash' | 'card' | 'online';
 export type PaymentStatus = 'pending' | 'completed' | 'failed';
 
-export interface Payment {
-  id: number;
-  orderId: number;
-  customerId: number;
-  customerName: string;
+export interface Customer {
+  _id: string;
+  name: string;
+  phone: string;
+  address: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Order {
+  _id: string;
+  orderNumber: string;
+  customer: Customer;
+  orderDate: string;
+  description: string;
+  quantity: number;
+  price: number;
   amount: number;
-  paymentMethod: PaymentMethod;
-  status: PaymentStatus;
-  transactionId?: string;
-  createdAt: Date;
+  receivedBy: string;
+  invoiceNumber: string;
+  status: 'pending' | 'processing' | 'completed';
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Optional: Add form-related interfaces

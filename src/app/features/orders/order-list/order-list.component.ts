@@ -1,6 +1,6 @@
 // src/app/features/orders/order-list/order-list.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { OrderService } from '../services/order.service';
+// import { appService } from '../services/order.service';
 import { Order, OrderStatus } from '../models/order.model';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,6 +11,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { OrderItemsDialogComponent } from '../components/order-items-dialog/order-items-dialog/order-items-dialog.component';
+import { AppService } from '../../../../services/app.service';
+import { OrderStatusDialogComponent } from './dialogues/order-status-dialog.component';
+import { forkJoin } from 'rxjs';
 
 
 interface OrderStats {
@@ -41,9 +44,10 @@ export class OrderListComponent implements OnInit {
 
   displayedColumns: string[] = [
     'select',
-    'id',
+    'orderNumber',
     'customer',
-    'items',
+    'description',
+    'quantity',
     'amount',
     'status',
     'dates',
@@ -61,11 +65,12 @@ export class OrderListComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private orderService: OrderService,
+    private appService: AppService,
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    // private appService: AppService
   ) {
     this.dataSource = new MatTableDataSource<Order>([]);
     this.dateRange = this.fb.group({
@@ -76,7 +81,7 @@ export class OrderListComponent implements OnInit {
 
   ngOnInit() {
     this.loadOrders();
-    this.setupFilters();
+    // this.setupFilters();
   }
 
   ngAfterViewInit() {
@@ -84,26 +89,26 @@ export class OrderListComponent implements OnInit {
     this.dataSource.sort = this.sort;
   }
 
-  private setupFilters() {
-    // Setup data source filtering
-    this.dataSource.filterPredicate = (data: Order, filter: string) => {
-      return data.customerName.toLowerCase().includes(filter) ||
-             data.id.toString().includes(filter);
-    };
+  // private setupFilters() {
+  //   // Setup data source filtering
+  //   this.dataSource.filterPredicate = (data: Order, filter: string) => {
+  //     return data.customerName.toLowerCase().includes(filter) ||
+  //            data.id.toString().includes(filter);
+  //   };
 
-    // Subscribe to date range changes
-    this.dateRange.valueChanges.subscribe(() => {
-      this.filterOrders();
-    });
-  }
+  //   // Subscribe to date range changes
+  //   this.dateRange.valueChanges.subscribe(() => {
+  //     this.filterOrders();
+  //   });
+  // }
 
   loadOrders() {
-    this.orderService.getOrders().subscribe({
+    this.appService.getOrders().subscribe({
       next: (orders) => {
         this.orders = orders;
         this.dataSource.data = orders;
         this.calculateOrderStats();
-        this.filterOrders();
+        // this.filterOrders();
         this.totalOrders = orders.length;
       },
       error: (error) => {
@@ -115,46 +120,57 @@ export class OrderListComponent implements OnInit {
   }
 
   private calculateOrderStats() {
-    this.orderStats = this.orders.reduce((stats, order) => {
-      stats.total++;
-      stats[order.status.toLowerCase() as keyof OrderStats]++;
-      return stats;
-    }, {
+    this.orderStats = {
       pending: 0,
       processing: 0,
       completed: 0,
       total: 0
+    };
+
+    this.orders.forEach(order => {
+      this.orderStats.total++;
+      switch(order.status) {
+        case 'pending':
+          this.orderStats.pending++;
+          break;
+        case 'processing':
+          this.orderStats.processing++;
+          break;
+        case 'completed':
+          this.orderStats.completed++;
+          break;
+      }
     });
   }
 
-  filterOrders() {
-    let filtered = this.orders;
+  // filterOrders() {
+  //   let filtered = this.orders;
 
-    // Status filter
-    if (this.selectedStatus !== 'all') {
-      filtered = filtered.filter(order => order.status === this.selectedStatus);
-    }
+  //   // Status filter
+  //   if (this.selectedStatus !== 'all') {
+  //     filtered = filtered.filter(order => order.status === this.selectedStatus);
+  //   }
 
-    // Date range filter
-    const { start, end } = this.dateRange.value;
-    if (start && end) {
-      filtered = filtered.filter(order => {
-        const orderDate = new Date(order.createdAt);
-        return orderDate >= start && orderDate <= end;
-      });
-    }
+  //   // Date range filter
+  //   const { start, end } = this.dateRange.value;
+  //   if (start && end) {
+  //     filtered = filtered.filter(order => {
+  //       const orderDate = new Date(order.createdAt);
+  //       return orderDate >= start && orderDate <= end;
+  //     });
+  //   }
 
-    // Search query
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(order =>
-        order.customerName.toLowerCase().includes(query) ||
-        order.id.toString().includes(query)
-      );
-    }
+  //   // Search query
+  //   if (this.searchQuery) {
+  //     const query = this.searchQuery.toLowerCase();
+  //     filtered = filtered.filter(order =>
+  //       order.customerName.toLowerCase().includes(query) ||
+  //       order.id.toString().includes(query)
+  //     );
+  //   }
 
-    this.dataSource.data = filtered;
-  }
+  //   this.dataSource.data = filtered;
+  // }
 
   resetFilters() {
     this.selectedStatus = 'all';
@@ -167,13 +183,13 @@ export class OrderListComponent implements OnInit {
     this.router.navigate(['/orders/new']);
   }
 
-  editOrder(order: Order) {
-    this.router.navigate(['/orders/edit', order.id]);
-  }
+  // editOrder(order: Order) {
+  //   this.router.navigate(['/orders/edit', order.id]);
+  // }
 
-  viewOrder(order: Order) {
-    this.router.navigate(['/orders', order.id]);
-  }
+  // viewOrder(order: Order) {
+  //   this.router.navigate(['/orders', order.id]);
+  // }
 
   viewItems(order: Order) {
     // Implement view items dialog
@@ -184,27 +200,83 @@ export class OrderListComponent implements OnInit {
   }
 
   updateStatus(order: Order) {
-    // Implement status update dialog
+    const dialogRef = this.dialog.open(OrderStatusDialogComponent, {
+      width: '400px',
+      data: { 
+        orderId: order._id,
+        currentStatus: order.status
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(newStatus => {
+      if (newStatus) {
+        this.appService.updateOrderStatus(order._id, newStatus).subscribe({
+          next: (updatedOrder) => {
+            // Update the order in the data source
+            const index = this.dataSource.data.findIndex(o => o._id === order._id);
+            if (index !== -1) {
+              this.dataSource.data[index].status = newStatus;
+              this.dataSource._updateChangeSubscription();
+              this.calculateOrderStats();
+            }
+            this.snackBar.open('Order status updated successfully', 'Close', {
+              duration: 3000
+            });
+          },
+          error: (error) => {
+            this.snackBar.open('Failed to update order status', 'Close', {
+              duration: 3000
+            });
+          }
+        });
+      }
+    });
   }
 
-  deleteOrder(order: Order) {
-    // Implement delete confirmation dialog
-  }
-
+  // Add bulk update status functionality
   bulkUpdateStatus() {
-    // Implement bulk status update
     const selectedOrders = this.selection.selected;
-    // Show dialog to update status for all selected orders
-  }
+    const dialogRef = this.dialog.open(OrderStatusDialogComponent, {
+      width: '400px',
+      data: { 
+        orderId: 'bulk',
+        currentStatus: 'multiple'
+      }
+    });
 
-  bulkDelete() {
-    // Implement bulk delete
-    const selectedOrders = this.selection.selected;
-    // Show confirmation dialog before deleting
-  }
+    dialogRef.afterClosed().subscribe(newStatus => {
+      if (newStatus) {
+        // Create an array of observables for each order update
+        const updateObservables = selectedOrders.map(order => 
+          this.appService.updateOrderStatus(order._id, newStatus)
+        );
 
-  exportOrders() {
-    // Implement export functionality
+        // Execute all updates
+        forkJoin(updateObservables).subscribe({
+          next: () => {
+            // Update local data
+            selectedOrders.forEach(order => {
+              const index = this.dataSource.data.findIndex(o => o._id === order._id);
+              if (index !== -1) {
+                this.dataSource.data[index].status = newStatus;
+              }
+            });
+            this.dataSource._updateChangeSubscription();
+            this.calculateOrderStats();
+            this.selection.clear();
+            
+            this.snackBar.open('Orders status updated successfully', 'Close', {
+              duration: 3000
+            });
+          },
+          error: (error) => {
+            this.snackBar.open('Failed to update some orders', 'Close', {
+              duration: 3000
+            });
+          }
+        });
+      }
+    });
   }
 
   isAllSelected() {

@@ -39,17 +39,17 @@ export class OrderItemsDialogComponent {
     return service?.name || 'Unknown Service';
   }
 
-  getSubtotal(): number {
-    return this.order.items.reduce((sum, item) => sum + item.total, 0);
-  }
+  // getSubtotal(): number {
+  //   return this.order.items.reduce((sum, item) => sum + item.total, 0);
+  // }
 
-  getTax(): number {
-    return this.getSubtotal() * (this.taxRate / 100);
-  }
+  // getTax(): number {
+  //   return this.getSubtotal() * (this.taxRate / 100);
+  // }
 
-  getTotal(): number {
-    return this.getSubtotal() + this.getTax();
-  }
+  // getTotal(): number {
+  //   return this.getSubtotal() + this.getTax();
+  // }
 
   printOrder() {
     window.print();

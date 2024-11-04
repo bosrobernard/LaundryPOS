@@ -1,30 +1,38 @@
-// src/app/features/dashboard/models/dashboard.model.ts
-export interface DashboardStats {
-  totalOrders: number;
-  totalRevenue: number;
-  totalCustomers: number;
-  pendingOrders: number;
-  recentOrders: RecentOrder[];
-  revenueChart: ChartData[];
-  orderStats: OrderStats;
-}
-
 export interface RecentOrder {
-  id: number;
-  customerName: string;
+  orderNumber: string;
+  customer: {
+    name: string;
+    phone: string;
+  };
   amount: number;
   status: string;
-  date: Date;
+  createdAt: string;
 }
 
-export interface ChartData {
+export interface RevenueChartData {
   date: string;
   value: number;
 }
 
 export interface OrderStats {
+  completed: number;
   pending: number;
   processing: number;
-  completed: number;
-  delivered: number;
+}
+
+export interface ActivityItem {
+  type: string;
+  message: string;
+  time: string;
+}
+
+export interface DashboardStats {
+  totalOrders: number;
+  totalRevenue: number;
+  totalCustomers: number;
+  pendingOrders: number;
+  revenueChart: RevenueChartData[];
+  orderStats: OrderStats;
+  recentOrders: RecentOrder[];
+  recentActivity: ActivityItem[];
 }

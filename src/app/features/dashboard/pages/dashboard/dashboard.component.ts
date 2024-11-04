@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { DashboardService } from '../../services/dashboard.service';
+// import { DashboardService } from '../../services/dashboard.service';
 import { DashboardStats } from '../../models/dashboard.model';
 import { 
   ApexAxisChartSeries,
@@ -13,6 +13,7 @@ import {
   ApexFill,
   ApexResponsive
 } from "ng-apexcharts";
+import { AppService } from '../../../../../services/app.service';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -43,75 +44,17 @@ export type PieChartOptions = {
 
 export class DashboardComponent implements OnInit {
   currentUser = {
-    name: 'John Doe'
+    name: 'Admin'
   };
 
   selectedDateRange = 'week';
   stats?: DashboardStats;
   displayedColumns = ['orderNumber', 'customer', 'amount', 'status', 'actions'];
 
-  recentOrders = [
-    {
-      number: '1234',
-      customerName: 'Alice Johnson',
-      customerAvatar: 'assets/avatars/user-1.jpg',
-      amount: 125.00,
-      status: 'Completed'
-    },
-    {
-      number: '1235',
-      customerName: 'Bob Smith',
-      customerAvatar: 'assets/avatars/user-2.jpg',
-      amount: 89.50,
-      status: 'Pending'
-    },
-    {
-      number: '1236',
-      customerName: 'Carol Williams',
-      customerAvatar: 'assets/avatars/user-3.jpg',
-      amount: 245.00,
-      status: 'Completed'
-    },
-    {
-      number: '1237',
-      customerName: 'David Brown',
-      customerAvatar: 'assets/avatars/user-4.jpg',
-      amount: 178.25,
-      status: 'Cancelled'
-    }
-  ];
-
-  recentActivity = [
-    {
-      type: 'order',
-      icon: 'ri-shopping-bag-line',
-      message: 'New order #1234 from Alice Johnson',
-      time: new Date(Date.now() - 1000 * 60 * 15)
-    },
-    {
-      type: 'payment',
-      icon: 'ri-money-dollar-circle-line',
-      message: 'Payment received for order #1232',
-      time: new Date(Date.now() - 1000 * 60 * 45)
-    },
-    {
-      type: 'user',
-      icon: 'ri-user-add-line',
-      message: 'New customer registration: Bob Smith',
-      time: new Date(Date.now() - 1000 * 60 * 120)
-    },
-    {
-      type: 'alert',
-      icon: 'ri-alert-line',
-      message: 'Low inventory alert for Item #A123',
-      time: new Date(Date.now() - 1000 * 60 * 180)
-    }
-  ];
-
   public chartOptions: Partial<ChartOptions> = {
     series: [{
       name: "Revenue",
-      data: [30, 40, 35, 50, 49, 60, 70]
+      data: []
     }],
     chart: {
       height: 350,
@@ -125,14 +68,14 @@ export class DashboardComponent implements OnInit {
       curve: 'smooth'
     },
     xaxis: {
-      categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      categories: []
     },
     dataLabels: {
       enabled: false
     },
     yaxis: {
       title: {
-        text: 'Revenue ($)'
+        text: 'Revenue (₵)'
       }
     },
     fill: {
@@ -147,7 +90,7 @@ export class DashboardComponent implements OnInit {
       },
     },
     title: {
-      text: 'Weekly Revenue',
+      text: 'Revenue Over Time',
       align: 'left'
     },
     legend: {
@@ -156,12 +99,12 @@ export class DashboardComponent implements OnInit {
   };
 
   public pieChartOptions: Partial<PieChartOptions> = {
-    series: [44, 55, 13],
+    series: [],
     chart: {
       type: 'donut',
       height: 350
     },
-    labels: ['Completed', 'Pending', 'Cancelled'],
+    labels: ['Completed', 'Pending', 'Processing'],
     responsive: [{
       breakpoint: 480,
       options: {
@@ -175,36 +118,27 @@ export class DashboardComponent implements OnInit {
     }]
   };
 
-
-
-
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private appService: AppService) {}
 
   ngOnInit(): void {
     this.loadDashboardStats();
-    this.initializeCharts();
   }
 
   loadDashboardStats() {
-    this.dashboardService.getDashboardStats().subscribe({
+    this.appService.getDashboardStats(this.selectedDateRange).subscribe({
       next: (stats) => {
         this.stats = stats;
         this.updateCharts();
       },
       error: (error) => {
         console.error('Error loading dashboard stats:', error);
-        // You might want to show a snackbar or error message here
       }
     });
   }
 
-  initializeCharts(): void {
-    // Initialize any additional chart configurations if needed
-  }
-
   updateCharts(): void {
     if (this.stats) {
-      // Update chart data based on stats
+      // Update line chart
       this.chartOptions.series = [{
         name: "Revenue",
         data: this.stats.revenueChart.map(item => item.value)
@@ -212,10 +146,12 @@ export class DashboardComponent implements OnInit {
       
       this.chartOptions.xaxis = {
         ...this.chartOptions.xaxis,
-        categories: this.stats.revenueChart.map(item => item.date)
+        categories: this.stats.revenueChart.map(item => 
+          new Date(item.date).toLocaleDateString()
+        )
       };
 
-      // Update pie chart data
+      // Update pie chart
       this.pieChartOptions.series = [
         this.stats.orderStats.completed,
         this.stats.orderStats.pending,
@@ -243,24 +179,5 @@ export class DashboardComponent implements OnInit {
       default:
         return false;
     }
-  }
-
-  exportReport(): void {
-    // Implement export functionality
-    console.log('Exporting report...');
-  }
-
-  refreshData(): void {
-    this.loadDashboardStats();
-  }
-
-  viewAllOrders(): void {
-    // Implement navigation to orders page
-    console.log('Navigating to orders page...');
-  }
-
-  viewAllActivity(): void {
-    // Implement navigation to activity page
-    console.log('Navigating to activity page...');
   }
 }

@@ -66,14 +66,14 @@
           type="text" 
           placeholder="Search orders..." 
           [(ngModel)]="searchQuery"
-          (ngModelChange)="filterOrders()"
+          
         >
       </div>
 
       <div class="filters-group">
         <mat-form-field appearance="outline">
           <mat-label>Status</mat-label>
-          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="filterOrders()">
+          <mat-select [(ngModel)]="selectedStatus" >
             <mat-option value="all">All Orders</mat-option>
             <mat-option value="pending">Pending</mat-option>
             <mat-option value="processing">Processing</mat-option>
@@ -92,7 +92,7 @@
           <mat-date-range-picker #picker></mat-date-range-picker>
         </mat-form-field>
 
-        <button mat-stroked-button class="filter-btn" (click)="resetFilters()">
+        <button mat-stroked-button class="filter-btn">
           <i class="ri-refresh-line"></i>
           Reset Filters
         </button>
@@ -111,14 +111,14 @@
           <i class="ri-edit-line"></i>
           Update Status
         </button>
-        <button mat-stroked-button color="warn" (click)="bulkDelete()">
+        <button mat-stroked-button color="warn">
           <i class="ri-delete-bin-line"></i>
           Delete
         </button>
       </div>
 
       <div class="table-utilities">
-        <button mat-stroked-button (click)="exportOrders()">
+        <button mat-stroked-button>
           <i class="ri-download-2-line"></i>
           Export
         </button>
@@ -150,64 +150,63 @@
           </mat-checkbox>
         </td>
       </ng-container>
-
-      <!-- Order ID Column -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Order ID </th>
-        <td mat-cell *matCellDef="let order" class="order-id">
-          #{{order.id}}
+    
+      <!-- Order Number Column -->
+      <ng-container matColumnDef="orderNumber">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Order # </th>
+        <td mat-cell *matCellDef="let order" class="order-number">
+          {{order.orderNumber}}
+          <small class="invoice-number">{{order.invoiceNumber}}</small>
         </td>
       </ng-container>
-
+    
       <!-- Customer Column -->
       <ng-container matColumnDef="customer">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer </th>
         <td mat-cell *matCellDef="let order">
           <div class="customer-info">
-            <img [src]="order.customerAvatar || 'assets/default-avatar.png'" 
-                 [alt]="order.customerName"
-                 class="customer-avatar">
             <div class="customer-details">
-              <span class="customer-name">{{order.customerName}}</span>
-              <small class="customer-email">{{order.customerEmail}}</small>
+              <span class="customer-name">{{order.customer.name}}</span>
+              <small class="customer-phone">{{order.customer.phone}}</small>
             </div>
           </div>
         </td>
       </ng-container>
-
-      <!-- Items Column -->
-      <ng-container matColumnDef="items">
-        <th mat-header-cell *matHeaderCellDef> Items </th>
-        <td mat-cell *matCellDef="let order">
-          <button mat-button (click)="viewItems(order)" class="items-btn">
-            {{order.items.length}} items
-            <i class="ri-arrow-right-s-line"></i>
-          </button>
-        </td>
+    
+      <!-- Description Column -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef> Description </th>
+        <td mat-cell *matCellDef="let order">{{order.description}}</td>
       </ng-container>
-
+    
+      <!-- Quantity Column -->
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Quantity </th>
+        <td mat-cell *matCellDef="let order">{{order.quantity}}</td>
+      </ng-container>
+    
       <!-- Amount Column -->
       <ng-container matColumnDef="amount">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
         <td mat-cell *matCellDef="let order" class="amount-cell">
-          <span class="amount">${{order.totalAmount | number:'1.2-2'}}</span>
+          <span class="amount">₵{{order.amount | number:'1.2-2'}}</span>
+          <small class="price">₵{{order.price | number:'1.2-2'}}</small>
         </td>
       </ng-container>
-
+    
       <!-- Status Column -->
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
         <td mat-cell *matCellDef="let order">
-          <span class="status-badge" [class]="order.status.toLowerCase()">
+          <span class="status-badge" [class]="order.status">
             <i class="ri-checkbox-circle-line" *ngIf="order.status === 'completed'"></i>
             <i class="ri-time-line" *ngIf="order.status === 'pending'"></i>
             <i class="ri-loader-4-line" *ngIf="order.status === 'processing'"></i>
-            <i class="ri-truck-line" *ngIf="order.status === 'delivered'"></i>
-            {{order.status}}
+            {{order.status | titlecase}}
           </span>
         </td>
       </ng-container>
-
+    
       <!-- Dates Column -->
       <ng-container matColumnDef="dates">
         <th mat-header-cell *matHeaderCellDef> Dates </th>
@@ -217,14 +216,14 @@
               <i class="ri-calendar-2-line"></i>
               Created: {{order.createdAt | date:'short'}}
             </span>
-            <span class="delivery-date">
-              <i class="ri-truck-line"></i>
-              Delivery: {{order.deliveryDate | date:'short'}}
+            <span class="order-date">
+              <i class="ri-time-line"></i>
+              Order: {{order.orderDate | date:'short'}}
             </span>
           </div>
         </td>
       </ng-container>
-
+    
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
@@ -233,11 +232,11 @@
             <i class="ri-more-2-fill"></i>
           </button>
           <mat-menu #menu="matMenu" class="actions-menu">
-            <button mat-menu-item (click)="viewOrder(order)">
+            <button mat-menu-item >
               <i class="ri-eye-line"></i>
               <span>View Details</span>
             </button>
-            <button mat-menu-item (click)="editOrder(order)">
+            <button mat-menu-item >
               <i class="ri-edit-line"></i>
               <span>Edit Order</span>
             </button>
@@ -246,14 +245,14 @@
               <span>Update Status</span>
             </button>
             <mat-divider></mat-divider>
-            <button mat-menu-item class="delete-action" (click)="deleteOrder(order)">
+            <button mat-menu-item class="delete-action" >
               <i class="ri-delete-bin-line"></i>
               <span>Delete Order</span>
             </button>
           </mat-menu>
         </td>
       </ng-container>
-
+    
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"
           [class.selected-row]="selection.isSelected(row)"

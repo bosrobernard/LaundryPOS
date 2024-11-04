@@ -352,18 +352,18 @@ export const MOCK_ADMINS: Admin[] = [
   // Add more mock admins as needed
 ];
 
-export const MOCK_ORDERS: Order[] = [
-  {
-    id: 1,
-    customerId: 1,
-    customerName: 'John Doe',
-    items: [
-      { id: 1, service: 'Wash & Fold', quantity: 5, price: 2.50, total: 12.50 }
-    ],
-    totalAmount: 12.50,
-    status: 'pending',
-    createdAt: new Date(),
-    deliveryDate: new Date()
-  },
-  // Add more mock orders as needed
-];
+// export const MOCK_ORDERS: Order[] = [
+//   {
+//     id: 1,
+//     customerId: 1,
+//     customerName: 'John Doe',
+//     items: [
+//       { id: 1, service: 'Wash & Fold', quantity: 5, price: 2.50, total: 12.50 }
+//     ],
+//     totalAmount: 12.50,
+//     status: 'pending',
+//     createdAt: new Date(),
+//     deliveryDate: new Date()
+//   },
+//   // Add more mock orders as needed
+// ];
