@@ -31,7 +31,7 @@
           <a routerLink="/orders" routerLinkActive="active">
             <i class="ri-shopping-basket-2-line"></i>
             <span *ngIf="!collapsed">Orders</span>
-            <span class="badge" *ngIf="!collapsed">5</span>
+            <span class="badge" *ngIf="inProcessOrdersCount > 0">{{inProcessOrdersCount}}</span>
           </a>
         </li>
         <li class="nav-item">

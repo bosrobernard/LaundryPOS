@@ -15,9 +15,17 @@ export interface RevenueChartData {
 }
 
 export interface OrderStats {
-  completed: number;
-  pending: number;
-  processing: number;
+
+  'IN-PROCESS': number;
+
+  'PICKED-UP': number;
+
+  'DELIVERED': number;
+
+  'CANCELLED': number;
+
+  [key: string]: number;
+
 }
 
 export interface ActivityItem {

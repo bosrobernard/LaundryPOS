@@ -4,6 +4,7 @@ import { Observable, catchError, map, of, take, tap, throwError } from 'rxjs';
 import { baseUrl } from '../constants/baseurl.constant';
 import { Router } from '@angular/router';
 import { AppState } from '../app/state/app.state';
+import { Order } from '../app/features/orders/models/order.model';
 
 @Injectable({ providedIn: 'root' })
 export class AppService {
@@ -141,6 +142,16 @@ export class AppService {
     );
   }
 
+  getNewOrders(): Observable<Order[]> {
+    return this.http.get<any>(`${baseUrl}/orders/get`).pipe(
+      map(response => response.data), // Extract the data array from the response
+      catchError(error => {
+        console.error('Error fetching orders:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   getPayments(): Observable<any> {
     return this.http.get(`${baseUrl}/orders/get`).pipe(
       take(1),
@@ -171,7 +182,7 @@ export class AppService {
 
   updateOrderStatus(orderId: string, status: string): Observable<any> {
     return this.http.patch(`${baseUrl}/orders/status/${orderId}`, { 
-      status: status.toLowerCase() // Ensure lowercase
+      status: status 
     }).pipe(
       map((response: any) => {
         if (!response.status) {
@@ -181,7 +192,25 @@ export class AppService {
       })
     );
   }
+
+  getInProcessOrdersCount(): Observable<number> {
+    return this.http.get<any>(`${baseUrl}/orders/get`).pipe(
+      map(response => {
+        if (response.status && response.data) {
+          return response.data.filter(
+            (order: any) => order.status === 'IN-PROCESS'
+          ).length;
+        }
+        return 0;
+      }),
+      catchError(error => {
+        console.error('Error getting in-process orders count:', error);
+        return of(0);
+      })
+    );
+  }
+}
   
 
   
-}
+

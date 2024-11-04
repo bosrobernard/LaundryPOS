@@ -1,43 +1,52 @@
 .form-container {
   padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+  
+  .form-section {
+    margin-bottom: 20px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+    
+    mat-form-field {
+      flex: 1;
+      
+      &.description-field {
+        flex: 2;
+      }
+    }
+  }
+  
+  .order-item {
+    padding: 16px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
 
-.form-header {
-  margin-bottom: 20px;
-}
-
-.form-section {
-  margin-bottom: 20px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.selected-customer {
-  margin-top: 16px;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 24px;
-}
-
-mat-card {
-  margin-bottom: 16px;
-}
-
-.mat-mdc-form-field {
-  width: 100%;
+  .totals-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+    
+    .total-amount {
+      text-align: right;
+      font-size: 1.1em;
+      
+      span {
+        margin-left: 8px;
+        font-weight: 500;
+      }
+    }
+  }
 }

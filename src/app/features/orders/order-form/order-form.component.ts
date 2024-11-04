@@ -1,9 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, debounceTime, switchMap, of } from 'rxjs';
 import { AppService } from '../../../../services/app.service';
+
+interface OrderItem {
+  description: string;
+  quantity: number;
+  price: number;
+  amount: number;
+}
 
 @Component({
   selector: 'app-order-form',
@@ -32,19 +39,71 @@ export class OrderFormComponent implements OnInit {
   private createForm() {
     this.orderForm = this.fb.group({
       customerId: ['', Validators.required],
-      description: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      price: [0, [Validators.required, Validators.min(0)]],
-      amount: [0, [Validators.required, Validators.min(0)]],
+      orderItems: this.fb.array([]),
       receivedBy: ['', Validators.required],
-      cash: [0, [Validators.required, Validators.min(0)]],
       paymentMethod: ['cash', Validators.required],
+      amountPaid: [0, [Validators.required, Validators.min(0)]],
+      totalAmount: [0],
+      outstandingBalance: [0],
       orderDate: [new Date(), Validators.required]
     });
 
+    // Add first order item by default
+    this.addOrderItem();
+
+    // Listen to amount paid changes to calculate outstanding balance
+    this.orderForm.get('amountPaid')?.valueChanges.subscribe(() => {
+      this.calculateOutstandingBalance();
+    });
+  }
+
+  get orderItems() {
+    return this.orderForm.get('orderItems') as FormArray;
+  }
+
+  addOrderItem() {
+    const orderItem = this.fb.group({
+      item: ['', Validators.required], // Added new item field
+      description: ['', Validators.required],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      price: [0, [Validators.required, Validators.min(0)]],
+      amount: [0]
+    });
+  
     // Listen to quantity and price changes to calculate amount
-    this.orderForm.get('quantity')?.valueChanges.subscribe(() => this.calculateAmount());
-    this.orderForm.get('price')?.valueChanges.subscribe(() => this.calculateAmount());
+    orderItem.get('quantity')?.valueChanges.subscribe(() => this.calculateItemAmount(orderItem));
+    orderItem.get('price')?.valueChanges.subscribe(() => this.calculateItemAmount(orderItem));
+  
+    this.orderItems.push(orderItem);
+  }
+
+  removeOrderItem(index: number) {
+    this.orderItems.removeAt(index);
+    this.calculateTotalAmount();
+  }
+
+  private calculateItemAmount(orderItem: FormGroup) {
+    const quantity = orderItem.get('quantity')?.value || 0;
+    const price = orderItem.get('price')?.value || 0;
+    const amount = quantity * price;
+    orderItem.patchValue({ amount }, { emitEvent: false });
+    this.calculateTotalAmount();
+  }
+
+  private calculateTotalAmount() {
+    const total = this.orderItems.controls.reduce((sum, item) => {
+      return sum + (item.get('amount')?.value || 0);
+    }, 0);
+    
+    this.orderForm.patchValue({ totalAmount: total }, { emitEvent: false });
+    this.calculateOutstandingBalance();
+  }
+
+  private calculateOutstandingBalance() {
+    const totalAmount = this.orderForm.get('totalAmount')?.value || 0;
+    const amountPaid = this.orderForm.get('amountPaid')?.value || 0;
+    const outstandingBalance = amountPaid - totalAmount;
+    this.orderForm.patchValue({ outstandingBalance }, { emitEvent: false }); // Changed to outstandingBalance
   }
 
   private setupCustomerSearch() {
@@ -88,10 +147,16 @@ export class OrderFormComponent implements OnInit {
       this.isSubmitting = true;
       
       const orderData = {
-        ...this.orderForm.value,
-        orderDate: this.orderForm.get('orderDate')?.value.toISOString()
+        customerId: this.orderForm.get('customerId')?.value,
+        orderDate: this.orderForm.get('orderDate')?.value.toISOString(),
+        orderItems: this.orderForm.get('orderItems')?.value,
+        totalAmount: this.orderForm.get('totalAmount')?.value,
+        receivedBy: this.orderForm.get('receivedBy')?.value,
+        amountPaid: this.orderForm.get('amountPaid')?.value,
+        outstandingBalance: this.orderForm.get('outstandingBalance')?.value,
+        paymentMethod: this.orderForm.get('paymentMethod')?.value
       };
-
+  
       this.appService.createOrder(orderData).subscribe({
         next: (response) => {
           this.snackBar.open('Order created successfully', 'Close', {
@@ -108,7 +173,7 @@ export class OrderFormComponent implements OnInit {
       });
     } else {
       this.snackBar.open('Please fill all required fields', 'Close', {
-        duration: 3000
+          duration: 3000
       });
     }
   }

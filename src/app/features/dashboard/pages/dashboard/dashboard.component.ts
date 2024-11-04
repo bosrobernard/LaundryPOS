@@ -14,6 +14,9 @@ import {
   ApexResponsive
 } from "ng-apexcharts";
 import { AppService } from '../../../../../services/app.service';
+import { OrderDetailsDialogComponent } from '../../../orders/order-list/dialogues/order-details-dialogue.component';
+import { Order } from '../../../orders/models/order.model';
+import { MatDialog } from '@angular/material/dialog';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -104,7 +107,7 @@ export class DashboardComponent implements OnInit {
       type: 'donut',
       height: 350
     },
-    labels: ['Completed', 'Pending', 'Processing'],
+    labels: ['In Process', 'Picked Up', 'Delivered', 'Cancelled'],
     responsive: [{
       breakpoint: 480,
       options: {
@@ -118,7 +121,7 @@ export class DashboardComponent implements OnInit {
     }]
   };
 
-  constructor(private appService: AppService) {}
+  constructor(private appService: AppService, private dialog: MatDialog,  ) {}
 
   ngOnInit(): void {
     this.loadDashboardStats();
@@ -151,14 +154,23 @@ export class DashboardComponent implements OnInit {
         )
       };
 
-      // Update pie chart
+      // Update pie chart with new status values
       this.pieChartOptions.series = [
-        this.stats.orderStats.completed,
-        this.stats.orderStats.pending,
-        this.stats.orderStats.processing
+        this.stats.orderStats['IN-PROCESS'],
+        this.stats.orderStats['PICKED-UP'],
+        this.stats.orderStats['DELIVERED'],
+        this.stats.orderStats['CANCELLED']
       ];
     }
   }
+
+  viewOrderDetails(order: Order) {
+    this.dialog.open(OrderDetailsDialogComponent, {
+      width: '800px',
+      data: order
+    });
+  }
+
 
   onDateRangeChange(): void {
     this.loadDashboardStats();

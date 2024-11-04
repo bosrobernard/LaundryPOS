@@ -10,10 +10,11 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { OrderItemsDialogComponent } from '../components/order-items-dialog/order-items-dialog/order-items-dialog.component';
+// import { OrderItemsDialogComponent } from '../components/order-items-dialog/order-items-dialog/order-items-dialog.component';
 import { AppService } from '../../../../services/app.service';
 import { OrderStatusDialogComponent } from './dialogues/order-status-dialog.component';
 import { forkJoin } from 'rxjs';
+import { OrderDetailsDialogComponent } from './dialogues/order-details-dialogue.component';
 
 
 interface OrderStats {
@@ -46,18 +47,24 @@ export class OrderListComponent implements OnInit {
     'select',
     'orderNumber',
     'customer',
-    'description',
-    'quantity',
-    'amount',
+    'totalAmount',
     'status',
     'dates',
     'actions'
   ];
 
-  orderStats: OrderStats = {
-    pending: 0,
-    processing: 0,
-    completed: 0,
+
+  orderStats: {
+    'IN-PROCESS': number;
+    'PICKED-UP': number;
+    'DELIVERED': number;
+    'CANCELLED': number;
+    total: number;
+  } = {
+    'IN-PROCESS': 0,
+    'PICKED-UP': 0,
+    'DELIVERED': 0,
+    'CANCELLED': 0,
     total: 0
   };
 
@@ -103,7 +110,7 @@ export class OrderListComponent implements OnInit {
   // }
 
   loadOrders() {
-    this.appService.getOrders().subscribe({
+    this.appService.getNewOrders().subscribe({
       next: (orders) => {
         this.orders = orders;
         this.dataSource.data = orders;
@@ -121,25 +128,23 @@ export class OrderListComponent implements OnInit {
 
   private calculateOrderStats() {
     this.orderStats = {
-      pending: 0,
-      processing: 0,
-      completed: 0,
+      'IN-PROCESS': 0,
+      'PICKED-UP': 0,
+      'DELIVERED': 0,
+      'CANCELLED': 0,
       total: 0
     };
 
     this.orders.forEach(order => {
       this.orderStats.total++;
-      switch(order.status) {
-        case 'pending':
-          this.orderStats.pending++;
-          break;
-        case 'processing':
-          this.orderStats.processing++;
-          break;
-        case 'completed':
-          this.orderStats.completed++;
-          break;
-      }
+      this.orderStats[order.status]++;
+    });
+  }
+
+  viewOrderDetails(order: Order) {
+    this.dialog.open(OrderDetailsDialogComponent, {
+      width: '800px',
+      data: order
     });
   }
 
@@ -191,20 +196,20 @@ export class OrderListComponent implements OnInit {
   //   this.router.navigate(['/orders', order.id]);
   // }
 
-  viewItems(order: Order) {
-    // Implement view items dialog
-    this.dialog.open(OrderItemsDialogComponent, {
-      data: order,
-      width: '600px'
-    });
-  }
+  // viewItems(order: Order) {
+  //   // Implement view items dialog
+  //   this.dialog.open(OrderItemsDialogComponent, {
+  //     data: order,
+  //     width: '600px'
+  //   });
+  // }
 
   updateStatus(order: Order) {
     const dialogRef = this.dialog.open(OrderStatusDialogComponent, {
       width: '400px',
       data: { 
         orderId: order._id,
-        currentStatus: order.status
+        currentStatus: order.status 
       }
     });
 
