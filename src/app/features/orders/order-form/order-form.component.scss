@@ -19,6 +19,18 @@
       }
     }
   }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .form-field label {
+    margin-bottom: 0.5rem;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.87);
+  }
   
   .order-item {
     padding: 16px;

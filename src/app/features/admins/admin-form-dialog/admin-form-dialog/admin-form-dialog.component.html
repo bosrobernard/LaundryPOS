@@ -1,29 +1,41 @@
 <h2 mat-dialog-title>{{data.mode === 'add' ? 'Add New Admin' : 'Edit Admin'}}</h2>
     <mat-dialog-content>
       <form [formGroup]="adminForm" class="admin-form">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Name</mat-label>
-          <input matInput formControlName="name" placeholder="Enter name">
-        </mat-form-field>
+        <div class="form-field w-full">
+          <label for="adminName">Name</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <input id="adminName" 
+                   matInput 
+                   formControlName="name" 
+                   placeholder="Enter name">
+          </mat-form-field>
+        </div>
 
         <!-- <mat-form-field appearance="outline" class="w-full">
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" type="email" placeholder="Enter email">
         </mat-form-field> -->
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Phone</mat-label>
-          <input matInput formControlName="phone" placeholder="Enter phone">
-        </mat-form-field>
+        <div class="form-field w-full">
+          <label for="adminPhone">Phone</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <input id="adminPhone" 
+                   matInput 
+                   formControlName="phone" 
+                   placeholder="Enter phone">
+          </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Role</mat-label>
-          <mat-select formControlName="role">
-            <mat-option value="SUPER_ADMIN">Super Admin</mat-option>
-            <mat-option value="ADMIN">Admin</mat-option>
-            <!-- <mat-option value="manager">Manager</mat-option> -->
-          </mat-select>
-        </mat-form-field>
+        <div class="form-field w-full">
+          <label for="adminRole">Role</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-select id="adminRole" formControlName="role">
+              <mat-option value="SUPER_ADMIN">Super Admin</mat-option>
+              <mat-option value="ADMIN">Admin</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+    
 
         <!-- <mat-form-field appearance="outline" class="w-full">
           <mat-label>Address</mat-label>

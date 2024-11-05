@@ -1,5 +1,214 @@
 <div class="form-container">
-  <!-- Header section remains the same -->
+    <!-- Header section remains the same -->
+    <div class="form-header">
+      <div class="header-content">
+        <button mat-icon-button (click)="goBack()">
+          <i class="ri-arrow-left-line"></i>
+        </button>
+        <div class="title-section">
+          <h1>{{isEditMode ? 'Update Order' : 'Create New Order'}}</h1>
+          <p>{{isEditMode ? 'Update order details' : 'Create a new order for customer'}}</p>
+        </div>
+      </div>
+    </div>
+  
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+      <!-- Customer Information Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="ri-user-line"></i>
+            Customer Information
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-field">
+            <label for="customerSearch">Search Customer</label>
+            <mat-form-field class="full-width">
+              <input id="customerSearch"
+                     type="text"
+                     matInput
+                     [formControl]="customerSearchCtrl"
+                     [matAutocomplete]="auto">
+              <mat-autocomplete #auto="matAutocomplete"
+                               [displayWith]="displayCustomerFn"
+                               (optionSelected)="onCustomerSelected($event)">
+                <mat-option *ngFor="let customer of filteredCustomers$ | async" [value]="customer">
+                  {{customer.name}} - {{customer.phone}}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+  
+          <div class="selected-customer" *ngIf="selectedCustomer">
+            <mat-card>
+              <mat-card-content>
+                <p><strong>Name:</strong> {{selectedCustomer.name}}</p>
+                <p><strong>Phone:</strong> {{selectedCustomer.phone}}</p>
+                <p><strong>Address:</strong> {{selectedCustomer.address}}</p>
+                <button mat-icon-button color="warn" (click)="clearCustomer()">
+                  <i class="ri-close-circle-line"></i>
+                </button>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <!-- Order Items Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="ri-shopping-bag-line"></i>
+            Order Items
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div formArrayName="orderItems">
+            <div *ngFor="let item of orderItems.controls; let i=index" [formGroupName]="i" class="order-item">
+              <div class="form-row">
+                <div class="form-field">
+                  <label [for]="'item-' + i">Item</label>
+                  <mat-form-field appearance="outline">
+                    <input [id]="'item-' + i" matInput formControlName="item" required>
+                  </mat-form-field>
+                </div>
+  
+                <div class="form-field">
+                  <label [for]="'description-' + i">Description</label>
+                  <mat-form-field appearance="outline" class="description-field">
+                    <input [id]="'description-' + i" matInput formControlName="description" required>
+                  </mat-form-field>
+                </div>
+  
+                <div class="form-field">
+                  <label [for]="'quantity-' + i">Quantity</label>
+                  <mat-form-field appearance="outline">
+                    <input [id]="'quantity-' + i" matInput type="number" formControlName="quantity" required>
+                  </mat-form-field>
+                </div>
+  
+                <div class="form-field">
+                  <label [for]="'price-' + i">Price</label>
+                  <mat-form-field appearance="outline">
+                    <input [id]="'price-' + i" matInput type="number" formControlName="price" required>
+                    <span matPrefix>GHS&nbsp;</span>
+                  </mat-form-field>
+                </div>
+  
+                <div class="form-field">
+                  <label [for]="'amount-' + i">Amount</label>
+                  <mat-form-field appearance="outline">
+                    <input [id]="'amount-' + i" matInput type="number" formControlName="amount" readonly>
+                    <span matPrefix>GHS&nbsp;</span>
+                  </mat-form-field>
+                </div>
+  
+                <button mat-icon-button color="warn" 
+                        type="button"
+                        *ngIf="orderItems.length > 1"
+                        (click)="removeOrderItem(i)">
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+  
+          <button mat-stroked-button 
+                  type="button"
+                  color="primary"
+                  (click)="addOrderItem()">
+            <i class="ri-add-line"></i>
+            Add Item
+          </button>
+  
+          <div class="totals-section">
+            <p class="total-amount">
+              <strong>Total Amount:</strong>
+              <span>GHS {{orderForm.get('totalAmount')?.value || 0}}</span>
+            </p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <!-- Payment Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="ri-money-dollar-circle-line"></i>
+            Payment Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="receivedBy">Received By</label>
+              <mat-form-field appearance="outline">
+                <input id="receivedBy" matInput formControlName="receivedBy" required>
+              </mat-form-field>
+            </div>
+  
+            <div class="form-field">
+              <label for="paymentMethod">Payment Method</label>
+              <mat-form-field appearance="outline">
+                <mat-select id="paymentMethod" formControlName="paymentMethod" required>
+                  <mat-option value="cash">Cash</mat-option>
+                  <mat-option value="bank">Bank Transfer</mat-option>
+                  <mat-option value="mobile_money">Mobile Money</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-field">
+              <label for="amountPaid">Amount Paid</label>
+              <mat-form-field appearance="outline">
+                <input id="amountPaid" matInput type="number" formControlName="amountPaid" required>
+                <span matPrefix>GHS&nbsp;</span>
+              </mat-form-field>
+            </div>
+  
+            <div class="form-field">
+              <label for="totalAmount">Total Amount</label>
+              <mat-form-field appearance="outline">
+                <input id="totalAmount" matInput type="number" formControlName="totalAmount" readonly>
+                <span matPrefix>GHS&nbsp;</span>
+              </mat-form-field>
+            </div>
+  
+            <div class="form-field">
+              <label for="balance">Balance</label>
+              <mat-form-field appearance="outline">
+                <input id="balance" matInput type="number" formControlName="outstandingBalance" readonly>
+                <span matPrefix>GHS&nbsp;</span>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="goBack()">
+          Cancel
+        </button>
+        <button mat-raised-button color="primary" 
+                type="submit" 
+                [disabled]="orderForm.invalid || isSubmitting">
+          <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
+          <span *ngIf="!isSubmitting">{{isEditMode ? 'Update Order' : 'Create Order'}}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+
+
+
+
+
+<!-- <div class="form-container">
   <div class="form-header">
     <div class="header-content">
       <button mat-icon-button (click)="goBack()">
@@ -13,7 +222,6 @@
   </div>
 
   <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
-    <!-- Customer Information Section -->
     <mat-card class="form-section">
       <mat-card-header>
         <mat-card-title>
@@ -52,7 +260,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Order Items Section -->
     <mat-card class="form-section">
       <mat-card-header>
         <mat-card-title>
@@ -118,7 +325,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Payment Section -->
     <mat-card class="form-section">
       <mat-card-header>
         <mat-card-title>
@@ -165,7 +371,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Form Actions -->
     <div class="form-actions">
       <button mat-stroked-button type="button" (click)="goBack()">
         Cancel
@@ -178,4 +383,4 @@
       </button>
     </div>
   </form>
-</div>
+</div> -->

@@ -5,16 +5,19 @@
       <p class="dashboard-subtitle">Welcome back, {{currentUser.name}}!</p>
     </div>
     
+ 
     <div class="dashboard-actions">
-      <mat-form-field appearance="outline" class="date-picker">
-        <mat-label>Date Range</mat-label>
-        <mat-select [(value)]="selectedDateRange" (selectionChange)="onDateRangeChange()">
-          <mat-option value="today">Today</mat-option>
-          <mat-option value="week">This Week</mat-option>
-          <mat-option value="month">This Month</mat-option>
-          <mat-option value="year">This Year</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div class="form-field">
+        <label for="dateRange">Date Range</label>
+        <mat-form-field appearance="outline" class="date-picker">
+          <mat-select id="dateRange" [(value)]="selectedDateRange" (selectionChange)="onDateRangeChange()">
+            <mat-option value="today">Today</mat-option>
+            <mat-option value="week">This Week</mat-option>
+            <mat-option value="month">This Month</mat-option>
+            <mat-option value="year">This Year</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
   </div>
 

@@ -1,6 +1,313 @@
-<!-- src/app/features/customers/pages/customer-list/customer-list.component.html -->
-<div class="customers-container">
+<div class="min-h-screen bg-gray-50 p-6">
   <!-- Header Section -->
+  <div class="mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Customer Management</h1>
+        <p class="text-gray-600 mt-1">View and manage your customer base</p>
+      </div>
+      <button 
+        (click)="addNewCustomer()"
+        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        <i class="ri-user-add-line mr-2"></i>
+        Add New Customer
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Total Customers -->
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 p-3 bg-blue-50 rounded-lg">
+            <i class="ri-team-line text-xl text-blue-600"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-600">Total Customers</p>
+            <h3 class="text-xl font-semibold text-gray-900">{{customerStats.total}}</h3>
+            <span class="inline-flex items-center text-sm text-green-600">
+              <i class="ri-arrow-up-line mr-1"></i>
+              12% vs last month
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Customers -->
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 p-3 bg-green-50 rounded-lg">
+            <i class="ri-user-smile-line text-xl text-green-600"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-600">Active Customers</p>
+            <h3 class="text-xl font-semibold text-gray-900">{{customerStats.active}}</h3>
+            <span class="inline-flex items-center text-sm text-green-600">
+              <i class="ri-arrow-up-line mr-1"></i>
+              8% vs last month
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Customers -->
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 p-3 bg-purple-50 rounded-lg">
+            <i class="ri-user-add-line text-xl text-purple-600"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-600">New This Month</p>
+            <h3 class="text-xl font-semibold text-gray-900">{{customerStats.new}}</h3>
+            <span class="inline-flex items-center text-sm text-green-600">
+              <i class="ri-arrow-up-line mr-1"></i>
+              5% vs last month
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Revenue -->
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 p-3 bg-yellow-50 rounded-lg">
+            <i class="ri-money-dollar-circle-line text-xl text-yellow-600"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm text-gray-600">Avg. Revenue/Customer</p>
+            <h3 class="text-xl font-semibold text-gray-900">${{customerStats.avgRevenue}}</h3>
+            <span class="inline-flex items-center text-sm text-red-600">
+              <i class="ri-arrow-down-line mr-1"></i>
+              3% vs last month
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-col md:flex-row gap-4">
+      <!-- Search Box -->
+      <div class="relative flex-1">
+        <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          (input)="applyFilter($event)"
+          placeholder="Search customers..." 
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-col md:flex-row gap-4">
+        <!-- Status Filter -->
+        <div class="w-full md:w-48">
+          <select 
+            [(ngModel)]="selectedStatus"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">All Customers</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <!-- Sort By Filter -->
+        <div class="w-full md:w-48">
+          <select 
+            [(ngModel)]="sortBy"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="name">Sort by Name</option>
+            <option value="date">Sort by Join Date</option>
+            <option value="orders">Sort by Orders</option>
+            <option value="revenue">Sort by Revenue</option>
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <button 
+          (click)="resetFilters()"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <i class="ri-refresh-line mr-2"></i>
+          Reset Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <!-- Table Actions -->
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+      <div class="flex items-center gap-4" *ngIf="selection.selected.length > 0">
+        <span class="text-sm text-gray-600">
+          {{selection.selected.length}} customers selected
+        </span>
+        <button 
+          (click)="bulkExport()"
+          class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50"
+        >
+          <i class="ri-download-2-line mr-2"></i>
+          Export Selected
+        </button>
+        <button 
+          (click)="bulkDelete()"
+          class="inline-flex items-center px-3 py-1.5 border border-red-300 rounded text-sm text-red-700 hover:bg-red-50"
+        >
+          <i class="ri-delete-bin-line mr-2"></i>
+          Delete Selected
+        </button>
+      </div>
+
+      <!-- Export Options -->
+      <div class="relative inline-block" #exportDropdown>
+        <button 
+          type="button"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+          [matMenuTriggerFor]="exportMenu"
+        >
+          <i class="ri-download-2-line mr-2"></i>
+          Export
+          <i class="ri-arrow-down-s-line ml-2"></i>
+        </button>
+        <!-- Export Menu -->
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="exportAs('excel')">
+            <i class="ri-file-excel-2-line mr-2"></i>
+            Export as Excel
+          </button>
+          <button mat-menu-item (click)="exportAs('csv')">
+            <i class="ri-file-text-line mr-2"></i>
+            Export as CSV
+          </button>
+          <button mat-menu-item (click)="exportAs('pdf')">
+            <i class="ri-file-pdf-line mr-2"></i>
+            Export as PDF
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table mat-table [dataSource]="dataSource" matSort class="min-w-full">
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox 
+              (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+            >
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+          <td mat-cell *matCellDef="let customer"> {{customer.name}} </td>
+        </ng-container>
+
+        <!-- Phone Column -->
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef> Phone </th>
+          <td mat-cell *matCellDef="let customer"> {{customer.phone}} </td>
+        </ng-container>
+
+        <!-- Address Column -->
+        <ng-container matColumnDef="address">
+          <th mat-header-cell *matHeaderCellDef> Address </th>
+          <td mat-cell *matCellDef="let customer"> {{customer.address}} </td>
+        </ng-container>
+
+        <!-- Created Date Column -->
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Joined </th>
+          <td mat-cell *matCellDef="let customer"> {{customer.createdAt | date}} </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let customer">
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+              <i class="ri-more-2-fill"></i>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item>
+                <i class="ri-eye-line mr-2"></i>
+                View Profile
+              </button>
+              <button mat-menu-item>
+                <i class="ri-edit-line mr-2"></i>
+                Edit Details
+              </button>
+              <button mat-menu-item>
+                <i class="ri-shopping-bag-line mr-2"></i>
+                View Orders
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="deleteCustomer(customer._id)" class="text-red-600">
+                <i class="ri-delete-bin-line mr-2"></i>
+                Delete Customer
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr 
+          mat-row 
+          *matRowDef="let row; columns: displayedColumns;"
+          [class.bg-blue-50]="selection.isSelected(row)"
+          class="hover:bg-gray-50"
+        ></tr>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="dataSource.data.length === 0" class="py-12 flex flex-col items-center justify-center">
+      <img src="assets/empty-customers.svg" alt="No customers found" class="w-48 h-48 mb-4">
+      <h3 class="text-lg font-medium text-gray-900">No Customers Found</h3>
+      <p class="text-gray-600 mb-4">Get started by adding your first customer</p>
+      <button 
+        (click)="addNewCustomer()"
+        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        Add New Customer
+      </button>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+      [length]="totalCustomers"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      (page)="onPageChange($event)"
+    >
+    </mat-paginator>
+  </div>
+</div>
+
+
+
+<!-- src/app/features/customers/pages/customer-list/customer-list.component.html
+<div class="customers-container">
   <div class="page-header">
     <div class="header-content">
       <div class="header-title">
@@ -13,7 +320,6 @@
       </button>
     </div>
 
-    <!-- Customer Stats -->
     <div class="stats-cards">
       <mat-card class="stat-card">
         <div class="stat-icon total">
@@ -73,7 +379,6 @@
     </div>
   </div>
 
-  <!-- Filters Card -->
   <mat-card class="filters-card">
     <div class="filters-content">
       <div class="search-box">
@@ -114,7 +419,6 @@
     </div>
   </mat-card>
 
-  <!-- Customers Table -->
   <mat-card class="table-card">
     <div class="table-actions">
       <div class="selected-actions" *ngIf="selection.selected.length > 0">
@@ -155,7 +459,6 @@
     </div>
 
     <table mat-table [dataSource]="dataSource" matSort class="customers-table">
-      <!-- Checkbox Column -->
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
           <mat-checkbox (change)="$event ? masterToggle() : null"
@@ -171,32 +474,26 @@
         </td>
       </ng-container>
 
-      <!-- Customer Details Column -->
-      <!-- Name Column -->
 <ng-container matColumnDef="name">
   <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
   <td mat-cell *matCellDef="let customer"> {{customer.name}} </td>
 </ng-container>
 
-<!-- Phone Column -->
 <ng-container matColumnDef="phone">
   <th mat-header-cell *matHeaderCellDef> Phone </th>
   <td mat-cell *matCellDef="let customer"> {{customer.phone}} </td>
 </ng-container>
 
-<!-- Address Column -->
 <ng-container matColumnDef="address">
   <th mat-header-cell *matHeaderCellDef> Address </th>
   <td mat-cell *matCellDef="let customer"> {{customer.address}} </td>
 </ng-container>
 
-<!-- Created Date Column -->
 <ng-container matColumnDef="createdAt">
   <th mat-header-cell *matHeaderCellDef mat-sort-header> Joined </th>
   <td mat-cell *matCellDef="let customer"> {{customer.createdAt | date}} </td>
 </ng-container>
 
-      <!-- Actions Column -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let customer">
@@ -232,7 +529,6 @@
       </tr>
     </table>
 
-    <!-- Empty State -->
     <div class="empty-state" *ngIf="dataSource.data.length === 0">
       <img src="assets/empty-customers.svg" alt="No customers found">
       <h3>No Customers Found</h3>
@@ -242,7 +538,6 @@
       </button>
     </div>
 
-    <!-- Paginator -->
     <mat-paginator 
       [length]="totalCustomers"
       [pageSize]="pageSize"
@@ -250,4 +545,4 @@
       (page)="onPageChange($event)">
     </mat-paginator>
   </mat-card>
-</div>
+</div> -->
