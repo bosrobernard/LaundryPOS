@@ -148,6 +148,10 @@ export class OrderListComponent implements OnInit {
     });
   }
 
+  editOrder(order: Order) {
+    this.router.navigate(['/orders/edit', order._id]);
+  }
+
   // filterOrders() {
   //   let filtered = this.orders;
 

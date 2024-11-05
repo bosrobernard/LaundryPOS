@@ -209,6 +209,35 @@ export class AppService {
       })
     );
   }
+
+  getOrderById(id: string): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/orders/get/${id}`).pipe(
+      map(response => response.data),
+      catchError(error => {
+        console.error('Error getting order:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  updateOrder(id: string, orderData: any): Observable<any> {
+    return this.http.put<any>(`${baseUrl}/orders/update/${id}`, orderData).pipe(
+      map(response => response.data),
+      catchError(error => {
+        console.error('Error updating order:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getOrderWithPayment(id: string): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/orders/get/${id}`).pipe(
+      catchError(error => {
+        console.error('Error getting order:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }
   
 

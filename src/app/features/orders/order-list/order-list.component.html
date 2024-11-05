@@ -246,7 +246,7 @@
               <i class="ri-eye-line"></i>
               <span>View Details</span>
             </button>
-            <button mat-menu-item >
+            <button mat-menu-item (click)="editOrder(order)">
               <i class="ri-edit-line"></i>
               <span>Edit Order</span>
             </button>
@@ -254,11 +254,11 @@
               <i class="ri-exchange-line"></i>
               <span>Update Status</span>
             </button>
-            <mat-divider></mat-divider>
+            <!-- <mat-divider></mat-divider>
             <button mat-menu-item class="delete-action" >
               <i class="ri-delete-bin-line"></i>
               <span>Delete Order</span>
-            </button>
+            </button> -->
           </mat-menu>
         </td>
       </ng-container>

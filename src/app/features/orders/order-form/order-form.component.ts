@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, debounceTime, switchMap, of } from 'rxjs';
 import { AppService } from '../../../../services/app.service';
@@ -23,18 +23,85 @@ export class OrderFormComponent implements OnInit {
   customerSearchCtrl = new FormControl('');
   filteredCustomers$!: Observable<any[]>;
   selectedCustomer: any = null;
+  isEditMode = false;
+  orderId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private appService: AppService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute
   ) {
     this.createForm();
     this.setupCustomerSearch();
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.isEditMode = true;
+        this.loadOrderData(params['id']);
+      }
+    });
+  }
+
+  private loadOrderData(orderId: string) {
+    this.appService.getOrderWithPayment(orderId).subscribe({
+      next: (response) => {
+        // The data is nested under response.data.order
+        const order = response.data.order;
+        const payment = response.data.payment;
+        
+        // Store order ID
+        this.orderId = order._id;
+  
+        // Set customer info
+        this.selectedCustomer = order.customer;
+        this.customerSearchCtrl.setValue(order.customer);
+  
+        // Reset form with order data
+        this.orderForm.patchValue({
+          customerId: order.customer._id,
+          receivedBy: order.receivedBy,
+          paymentMethod: order.paymentMethod,
+          amountPaid: order.amountPaid,
+          totalAmount: order.totalAmount,
+          outstandingBalance: order.outstandingBalance,
+          orderDate: new Date(order.orderDate)
+        });
+  
+        // Clear existing items
+        while (this.orderItems.length) {
+          this.orderItems.removeAt(0);
+        }
+  
+        // Add loaded items
+        order.orderItems.forEach((item: { _id: any; item: any; description: any; quantity: any; price: any; amount: any; }) => {
+          const orderItem = this.fb.group({
+            _id: [item._id],
+            item: [item.item, Validators.required],
+            description: [item.description, Validators.required],
+            quantity: [item.quantity, [Validators.required, Validators.min(1)]],
+            price: [item.price, [Validators.required, Validators.min(0)]],
+            amount: [item.amount]
+          });
+  
+          // Setup calculations
+          orderItem.get('quantity')?.valueChanges.subscribe(() => 
+            this.calculateItemAmount(orderItem));
+          orderItem.get('price')?.valueChanges.subscribe(() => 
+            this.calculateItemAmount(orderItem));
+  
+          this.orderItems.push(orderItem);
+        });
+      },
+      error: (error) => {
+        this.snackBar.open('Error loading order', 'Close', { duration: 3000 });
+        this.router.navigate(['/orders']);
+      }
+    });
+  }
 
   private createForm() {
     this.orderForm = this.fb.group({
@@ -156,24 +223,28 @@ export class OrderFormComponent implements OnInit {
         outstandingBalance: this.orderForm.get('outstandingBalance')?.value,
         paymentMethod: this.orderForm.get('paymentMethod')?.value
       };
-  
-      this.appService.createOrder(orderData).subscribe({
+
+      const request = this.isEditMode ? 
+        this.appService.updateOrder(this.orderId!, orderData) :
+        this.appService.createOrder(orderData);
+
+      request.subscribe({
         next: (response) => {
-          this.snackBar.open('Order created successfully', 'Close', {
-            duration: 3000
-          });
+          this.snackBar.open(
+            `Order ${this.isEditMode ? 'updated' : 'created'} successfully`, 
+            'Close', 
+            { duration: 3000 }
+          );
           this.router.navigate(['/orders']);
         },
         error: (error) => {
           this.isSubmitting = false;
-          this.snackBar.open(error.message || 'Error creating order', 'Close', {
-            duration: 3000
-          });
+          this.snackBar.open(
+            error.message || `Error ${this.isEditMode ? 'updating' : 'creating'} order`, 
+            'Close', 
+            { duration: 3000 }
+          );
         }
-      });
-    } else {
-      this.snackBar.open('Please fill all required fields', 'Close', {
-          duration: 3000
       });
     }
   }

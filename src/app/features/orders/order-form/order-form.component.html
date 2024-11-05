@@ -6,13 +6,14 @@
         <i class="ri-arrow-left-line"></i>
       </button>
       <div class="title-section">
-        <h1>Create New Order</h1>
-        <p>Create a new order for customer</p>
+        <h1>{{isEditMode ? 'Update Order' : 'Create New Order'}}</h1>
+        <p>{{isEditMode ? 'Update order details' : 'Create a new order for customer'}}</p>
       </div>
     </div>
   </div>
+
   <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
-    <!-- Customer Information Section remains the same but fix the event binding -->
+    <!-- Customer Information Section -->
     <mat-card class="form-section">
       <mat-card-header>
         <mat-card-title>
@@ -67,6 +68,7 @@
                 <mat-label>Item</mat-label>
                 <input matInput formControlName="item" required>
               </mat-form-field>
+
               <mat-form-field appearance="outline" class="description-field">
                 <mat-label>Description</mat-label>
                 <input matInput formControlName="description" required>
@@ -172,7 +174,7 @@
               type="submit" 
               [disabled]="orderForm.invalid || isSubmitting">
         <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
-        <span *ngIf="!isSubmitting">Create Order</span>
+        <span *ngIf="!isSubmitting">{{isEditMode ? 'Update Order' : 'Create Order'}}</span>
       </button>
     </div>
   </form>
