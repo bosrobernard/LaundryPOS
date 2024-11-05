@@ -15,6 +15,7 @@ import { AppService } from '../../../../services/app.service';
 import { OrderStatusDialogComponent } from './dialogues/order-status-dialog.component';
 import { forkJoin } from 'rxjs';
 import { OrderDetailsDialogComponent } from './dialogues/order-details-dialogue.component';
+import { PrintInvoiceService } from '../../../../services/print-invoice.service';
 
 
 interface OrderStats {
@@ -77,6 +78,7 @@ export class OrderListComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fb: FormBuilder,
+    private printInvoiceService: PrintInvoiceService
     // private appService: AppService
   ) {
     this.dataSource = new MatTableDataSource<Order>([]);
@@ -311,5 +313,9 @@ export class OrderListComponent implements OnInit {
       this.paginator.pageSize = event.value;
       this.paginator.pageIndex = 0;
     }
+  }
+
+  printInvoice(order: any) {
+    this.printInvoiceService.printInvoice(order);
   }
 }
